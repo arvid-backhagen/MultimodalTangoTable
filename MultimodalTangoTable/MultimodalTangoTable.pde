@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>//
  TUIO 1.1 Demo for Processing
  Copyright (c) 2005-2014 Martin Kaltenbrunner <martin@tuio.org>
 
@@ -24,14 +24,17 @@
 
 
 
-// mimin filter shit
+// mimin essential import
 import ddf.minim.*;
 import ddf.minim.effects.*;
 import ddf.minim.ugens.*;
+
 Minim minim;
 AudioOutput output;
 FilePlayer  groove;
+FilePlayer  bpMusic;
 LowPassFS   lpf;
+BandPass    bpf;
 
 
 // import the TUIO library
@@ -51,21 +54,32 @@ boolean soundOn = false;
 boolean verbose = false; // print console debug messages
 boolean callback = true; // updates only after callbacks
 
+// Set track to play, in data folder you can put new tracks to play
+String track = "Daft Punk - Around The World.mp3";
+String track2 = "Get-lucky.wav";
+// Sets frequency threshold
+float freq;
+
+
 void setup()
 {
   minim = new Minim(this);
   output = minim.getLineOut();
-  groove = new FilePlayer( minim.loadFileStream("groove.mp3") );
+  groove = new FilePlayer( minim.loadFileStream(track) );
   groove.loop();
+  
+  bpMusic = new FilePlayer( minim.loadFileStream(track) );
+  bpf = new BandPass(440, 20, output.sampleRate());
+
   // GUI setup
   noCursor();
-  size(displayWidth,displayHeight);
+  size(640,480);
   noStroke();
   fill(0);
   
   // periodic updates
   if (!callback) {
-    frameRate(60); //<>//
+    frameRate(60);
     loop();
   } else noLoop(); // or callback updates 
   
@@ -149,6 +163,15 @@ void addTuioObject(TuioObject tobj) {
   if (tobj.getSymbolID() == 2){
     toggleSound();
   }
+  if (tobj.getSymbolID() == 50){
+    groove.play();
+    lpf = new LowPassFS(freq, output.sampleRate());
+    groove.patch( lpf ).patch( output );
+  }
+  if (tobj.getSymbolID() == 60){
+    bpMusic.play();
+    bpMusic.patch( output );
+  }
   if (verbose) println("add obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()); 
 }
 
@@ -156,15 +179,17 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
-  if (tobj.getSymbolID() == 2){
-    setVolume(tobj.getAngle()/6);
-    setFrequency(int(tobj.getX()*1000));
-  }
   if (tobj.getSymbolID() == 50){
-    println("Y-position: " + tobj.getY());
-    lpf = new LowPassFS(tobj.getY()*200, output.sampleRate());
-    groove.patch( lpf ).patch( output );
+    freq = tobj.getY()*1000;
+    lpf.setFreq(freq);
   }
+  //if (tobj.getSymbolID() == 60){
+  //  println(tobj.getX()*1000);
+  //  float passBand = map(tobj.getX()*1000, 0, width, 100, 2000);
+  //  bpf.setFreq(passBand);
+  //  float bandWidth = map(tobj.getY()*100, 0, height, 50, 500);
+  //  bpf.setBandWidth(bandWidth);
+  //}
 }
 
 // called when an object is removed from the scene
@@ -172,6 +197,12 @@ void removeTuioObject(TuioObject tobj) {
   // fiducial_id = 2 gets through and toggles sound in PureData
   if (tobj.getSymbolID() == 2){
     toggleSound();
+  }
+  if (tobj.getSymbolID() == 50){
+    groove.pause();
+  }
+  if (tobj.getSymbolID() == 60){
+    bpMusic.pause();
   }
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
 }
