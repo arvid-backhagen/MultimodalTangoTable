@@ -55,7 +55,7 @@ boolean verbose = false; // print console debug messages
 boolean callback = true; // updates only after callbacks
 
 // Set track to play, in data folder you can put new tracks to play
-String track = "simpleGuitar.mp3";
+String track = "Daft Punk - Around The World.mp3";
 
 // Sets frequency threshold
 float freq;
@@ -71,8 +71,7 @@ void setup()
   
   groove = new FilePlayer( minim.loadFileStream(track) );
   groove.loop();
-  lpf = new LowPassFS(freq, output.sampleRate());
-  groove.patch( lpf ).patch( output );
+  groove.patch( output );
   groove.pause();
   
   fgroove = new FilePlayer( minim.loadFileStream(track) );
@@ -191,6 +190,9 @@ void addTuioObject(TuioObject tobj) {
   }
   if (tobj.getSymbolID() == 50){
     groove.play();
+    lpf = new LowPassFS(freq, output.sampleRate());
+
+    groove.patch(lpf);
   }
   if (tobj.getSymbolID() == 60){
     fgroove.play(); 
@@ -203,7 +205,7 @@ void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
   if (tobj.getSymbolID() == 50){
-    freq = map(tobj.getY(), 0.1, 1, 60, 15000);
+    freq = map(tobj.getY(), 0.06, 0.95, 200, 10000);
     println(freq);
     lpf.setFreq(freq);
   }
