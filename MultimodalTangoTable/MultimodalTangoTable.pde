@@ -55,7 +55,7 @@ boolean verbose = false; // print console debug messages
 boolean callback = true; // updates only after callbacks
 
 // Set track to play, in data folder you can put new tracks to play
-String track = "Daft Punk - Around The World.mp3";
+String track = "simpleGuitar.mp3";
 
 // Sets frequency threshold
 float freq;
@@ -130,6 +130,8 @@ void draw()
      pushMatrix();
      translate(tobj.getScreenX(width),tobj.getScreenY(height));
      rotate(tobj.getAngle());
+     
+     // set image of tuio objects
      if (tobj.getSymbolID() == 60){
        image(flangeimg, -obj_size, -obj_size, 2*obj_size, 2*obj_size);
      } else if (tobj.getSymbolID() == 50){
@@ -176,6 +178,10 @@ void draw()
      fill(255);
      text(""+tblb.getBlobID(), tblb.getScreenX(width), tblb.getScreenX(width));
    }
+   
+   text("The groove object has " + groove.loopCount() + " loops left." 
+     + " Is playing: " + groove.isPlaying() 
+     + ", Is looping: " + groove.isLooping(), 5, 15);
 }
 
 // --------------------------------------------------------------
@@ -185,14 +191,11 @@ void draw()
 
 // called when an object is added to the scene
 void addTuioObject(TuioObject tobj) {
-  // fiducial_id = 2 gets through and toggles sound in PureData
-  if (tobj.getSymbolID() == 2){
-    toggleSound();
-  }
+  
   if (tobj.getSymbolID() == 50){
     groove.play();
   }
-  if (tobj.getSymbolID() == 60){
+  if (tobj.getSymbolID() == 2){
     fgroove.play(); 
   }
   if (verbose) println("add obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()); 
@@ -203,13 +206,16 @@ void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
   if (tobj.getSymbolID() == 50){
-    freq = map(tobj.getY(), 0.06, 0.95, 200, 10000);
+    freq = map(tobj.getY(), 0, 1, 60, 10000);
     println(freq);
     lpf.setFreq(freq);
   }
-  if (tobj.getSymbolID() == 60){
-    flange.delay.setLastValue( map( tobj.getX(), 0, width, 0.01, 5 ) );
-    flange.depth.setLastValue( map( tobj.getY(), height, 0, 1.00, 5 ) );
+  if (tobj.getSymbolID() == 2){
+    float dl = map( tobj.getX(), 0, 1, 0.01, 5 );
+    float dp = map( tobj.getY(), 1, 0, 1.00, 5 );
+    println(tobj.getX());
+    flange.delay.setLastValue(dl);
+    flange.depth.setLastValue( dp );
   }
 }
 
@@ -222,7 +228,7 @@ void removeTuioObject(TuioObject tobj) {
   if (tobj.getSymbolID() == 50){
     groove.pause();
   }
-  if (tobj.getSymbolID() == 60){
+  if (tobj.getSymbolID() == 2){
     fgroove.pause();
   }
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
@@ -273,70 +279,4 @@ void removeTuioBlob(TuioBlob tblb) {
 void refresh(TuioTime frameTime) {
   if (verbose) println("frame #"+frameTime.getFrameID()+" ("+frameTime.getTotalMilliseconds()+")");
   if (callback) redraw();
-}
-
-
-
-
-UDPOutput clientParameters = new UDPOutput("127.0.0.1", 3001, 3003);
-UDPOutput clientSoundOnOff = new UDPOutput("127.0.0.1", 3002, 3004);
-
-float volume = 0.2;
-float volumeMin = 0;
-float volumeMax = 1;
-
-int frequency = 80;
-int frequencyMin = 30;
-int frequencyMax = 880;
-
-
-void setVolume(float value)
-{
-  volume = max(min(value, volumeMax), volumeMin); 
-  sendParameters();  
-}
-
-void setFrequency(int value)
-{
-  frequency = max(min(value, frequencyMax), frequencyMin); 
-  sendParameters();  
-}
-
-void sendParameters()
-{
-  String msg = volume + " " + frequency + "\n";
-  print(msg);
-  clientParameters.send(frequency + " " + volume + "\n");  
-}
-
-void toggleSound()
-{
-  soundOn = !soundOn; 
-  if (soundOn)
-    clientSoundOnOff.send("1\n");
-  else 
-    clientSoundOnOff.send("0\n"); 
-}
-
-void keyPressed()
-{
-  switch (key)
-  {
-  case 'v': 
-    setVolume(volume + 0.1); 
-    break;
-  case 'V': 
-    setVolume(volume - 0.1);     
-    break;
-  case 'f': 
-    setFrequency(frequency + 10);
-    break;
-  case 'F': 
-    setFrequency(frequency - 10);
-    break;
-  case ' ':
-    toggleSound();
-    break;
-  }
-
 }
