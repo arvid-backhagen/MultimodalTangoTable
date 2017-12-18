@@ -71,7 +71,8 @@ void setup()
   
   groove = new FilePlayer( minim.loadFileStream(track) );
   groove.loop();
-  groove.patch( output );
+  lpf = new LowPassFS(freq, output.sampleRate());
+  groove.patch( lpf ).patch( output );
   groove.pause();
   
   fgroove = new FilePlayer( minim.loadFileStream(track) );
@@ -190,9 +191,6 @@ void addTuioObject(TuioObject tobj) {
   }
   if (tobj.getSymbolID() == 50){
     groove.play();
-    lpf = new LowPassFS(freq, output.sampleRate());
-
-    groove.patch(lpf);
   }
   if (tobj.getSymbolID() == 60){
     fgroove.play(); 
