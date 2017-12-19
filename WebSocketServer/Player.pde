@@ -133,6 +133,7 @@ class Player {
     songFiducial.setInt("y", 0);
     
     song.setInt("id", 1);
+    song.setFloat("tempo", defaultTickRate);
     song.setFloat("position", filePlayer.position()/filePlayer.length());
     song.setFloat("volume", 1 + (defaultGain/minGain));
     song.setBoolean("playing", filePlayer.isPlaying());
@@ -195,19 +196,20 @@ class Player {
   //Bpm
   void resetBpm() {
     rateControl.value.setLastValue(defaultTickRate);
+    song.setFloat("tempo", defaultTickRate);
     println("tickrate:", defaultTickRate);
   }
   
   void increaseBpm() {
     float newTickRate = min(rateControl.value.getLastValue() + deltaTickrate, maxTickRate);
     rateControl.value.setLastValue(newTickRate);
-    println("tickrate:", newTickRate);
+    song.setFloat("tempo", newTickRate);
   }
   
   void decreaseBpm() {
     float newTickRate = max(rateControl.value.getLastValue() - deltaTickrate, minTickRate);
     rateControl.value.setLastValue(newTickRate);
-    println("tickrate:", newTickRate);
+    song.setFloat("tempo", newTickRate);
   }
   
   
@@ -221,7 +223,7 @@ class Player {
       delayBypassControl.activate();
     }
     
-    filter.setBoolean("active", !delayBypassControl.isActive());
+    echo.setBoolean("active", !delayBypassControl.isActive());
   }
   
   void increaseEcho() {
