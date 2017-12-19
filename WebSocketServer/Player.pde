@@ -197,7 +197,6 @@ class Player {
   void resetBpm() {
     rateControl.value.setLastValue(defaultTickRate);
     song.setFloat("tempo", defaultTickRate);
-    println("tickrate:", defaultTickRate);
   }
   
   void increaseBpm() {
