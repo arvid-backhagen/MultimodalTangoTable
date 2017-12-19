@@ -22,182 +22,118 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
-// mimin essential import
-import ddf.minim.*;
-import ddf.minim.effects.*;
-import ddf.minim.ugens.*;
-import ddf.minim.analysis.*;
-
-Minim minim;
-AudioOutput output;
-FilePlayer  groove;
-FilePlayer  fgroove;
-LowPassFS   lpf;
-Flanger     flange;
-
-
-// import the TUIO library
+import websockets.*;
 import TUIO.*;
-// declare a TuioProcessing client
+
+
+// TUIO stuff
 TuioProcessing tuioClient;
-
-// these are some helper variables which are used
-// to create scalable graphical feedback
-float cursor_size = 15;
-float object_size = 60;
-float table_size = 760;
-float scale_factor = 1;
-PFont font;
-boolean soundOn = false;
-
 boolean verbose = false; // print console debug messages
 boolean callback = true; // updates only after callbacks
 
-// Set track to play, in data folder you can put new tracks to play
-String track = "simpleGuitar.mp3";
 
-// Sets frequency threshold
-float freq;
+// Websocket stuff
+WebsocketServer ws;
+int serverPort = 1234;
+
+
+// Player stuff
+Player player1;
+String player1String;
+
+
+// GUI stuff
+float object_size = 60;
+PFont font;
 
 PImage flangeimg;
 PImage lpfimg;
 
 
+
+
+// --------------------------------------------------------------
+// Processing functions
+// --------------------------------------------------------------
 void setup()
 {
-  minim = new Minim(this);
-  output = minim.getLineOut();
-  
-  groove = new FilePlayer( minim.loadFileStream(track) );
-  groove.loop();
-  lpf = new LowPassFS(freq, output.sampleRate());
-  groove.patch( lpf ).patch( output );
-  groove.pause();
-  
-  fgroove = new FilePlayer( minim.loadFileStream(track) );
-  fgroove.loop();
-  
-  flange = new Flanger( 1,     // delay length in milliseconds ( clamped to [0,100] )
-                        0.2f,   // lfo rate in Hz ( clamped at low end to 0.001 )
-                        1,     // delay depth in milliseconds ( minimum of 0 )
-                        0.5f,   // amount of feedback ( clamped to [0,1] )
-                        0.5f,   // amount of dry signal ( clamped to [0,1] )
-                        0.5f    // amount of wet signal ( clamped to [0,1] )
-                       );
-                        
-  fgroove.patch( flange ).patch( output );
-  fgroove.pause();
-  
   // GUI setup
+  size(800, 1200, P3D);
+  font = createFont("Arial", 12);
+  textFont(font);
   noCursor();
-  size(640, 480);
   noStroke();
   fill(0);
   
   flangeimg = loadImage("flange.jpg");
   lpfimg = loadImage("filter_lowpass.jpg");
   
-  // periodic updates
-  if (!callback) {
-    frameRate(60);
-    loop();
-  } else noLoop(); // or callback updates 
-  
-  font = createFont("Arial", 18);
-  scale_factor = height/table_size;
-  
-  // finally we create an instance of the TuioProcessing client
-  // since we add "this" class as an argument the TuioProcessing class expects
-  // an implementation of the TUIO callback methods in this class (see below)
+  //Initialize TuioClient
   tuioClient  = new TuioProcessing(this);
+  
+  //Initialize player
+  player1 = new Player(this);
+  
+  //Initialize websocket player
+  ws = new WebsocketServer(this, 1234, "/");
 }
 
-// within the draw method we retrieve an ArrayList of type <TuioObject>, <TuioCursor> or <TuioBlob>
-// from the TuioProcessing client and then loops over all lists to draw the graphical feedback.
+
 void draw()
 {
   background(255);
-  textFont(font,18*scale_factor);
-  float obj_size = object_size*scale_factor; 
-  float cur_size = cursor_size*scale_factor; 
+  fill(0);
+  
+  if (frameCount % 30 == 0) {
+    thread("sendMessageToClients");
+  }
    
   ArrayList<TuioObject> tuioObjectList = tuioClient.getTuioObjectList();
   for (int i=0;i<tuioObjectList.size();i++) {
      TuioObject tobj = tuioObjectList.get(i);
-     stroke(0);
-     fill(0,0,0);
+     
      pushMatrix();
-     translate(tobj.getScreenX(width),tobj.getScreenY(height));
+     translate(tobj.getScreenX(width), tobj.getScreenY(height));
      rotate(tobj.getAngle());
      
      // set image of tuio objects
      if (tobj.getSymbolID() == 60){
-       image(flangeimg, -obj_size, -obj_size, 2*obj_size, 2*obj_size);
+       image(flangeimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else if (tobj.getSymbolID() == 50){
-       image(lpfimg, -obj_size, -obj_size, 2*obj_size, 2*obj_size);
+       image(lpfimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else {
-       rect(-obj_size/2,-obj_size/2,obj_size,obj_size);
+       rect(-object_size/2,-object_size/2,object_size,object_size);
      }
+     
      popMatrix();
      text(""+tobj.getSymbolID(), tobj.getScreenX(width), tobj.getScreenY(height));
-   }
-   
-   ArrayList<TuioCursor> tuioCursorList = tuioClient.getTuioCursorList();
-   for (int i=0;i<tuioCursorList.size();i++) {
-      TuioCursor tcur = tuioCursorList.get(i);
-      ArrayList<TuioPoint> pointList = tcur.getPath();
-      
-      if (pointList.size()>0) {
-        stroke(0,0,255);
-        TuioPoint start_point = pointList.get(0);
-        for (int j=0;j<pointList.size();j++) {
-           TuioPoint end_point = pointList.get(j);
-           line(start_point.getScreenX(width),start_point.getScreenY(height),end_point.getScreenX(width),end_point.getScreenY(height));
-           start_point = end_point;
-        }
-        
-        stroke(192,192,192);
-        fill(192,192,192);
-        ellipse( tcur.getScreenX(width), tcur.getScreenY(height),cur_size,cur_size);
-        fill(0);
-        text(""+ tcur.getCursorID(),  tcur.getScreenX(width)-5,  tcur.getScreenY(height)+5);
-      }
-   }
-   
-  ArrayList<TuioBlob> tuioBlobList = tuioClient.getTuioBlobList();
-  for (int i=0;i<tuioBlobList.size();i++) {
-     TuioBlob tblb = tuioBlobList.get(i);
-     stroke(0);
-     fill(0);
-     pushMatrix();
-     translate(tblb.getScreenX(width),tblb.getScreenY(height));
-     rotate(tblb.getAngle());
-     ellipse(-1*tblb.getScreenWidth(width)/2,-1*tblb.getScreenHeight(height)/2, tblb.getScreenWidth(width), tblb.getScreenWidth(width));
-     popMatrix();
-     fill(255);
-     text(""+tblb.getBlobID(), tblb.getScreenX(width), tblb.getScreenX(width));
-   }
-   
-   text("The groove object has " + groove.loopCount() + " loops left." 
-     + " Is playing: " + groove.isPlaying() 
-     + ", Is looping: " + groove.isLooping(), 5, 15);
+  }
+  
+  
+  text("Server running", 10, 20);
+  
+  player1String = player1.toJsonString();
+  text(player1String, 10, 40); 
 }
 
+
+
+
 // --------------------------------------------------------------
-// these callback methods are called whenever a TUIO event occurs
-// there are three callbacks for add/set/del events for each object/cursor/blob type
-// the final refresh callback marks the end of each TUIO frame
+// TUIO functions
+// --------------------------------------------------------------
 
 // called when an object is added to the scene
 void addTuioObject(TuioObject tobj) {
-  
+  /*
   if (tobj.getSymbolID() == 50){
     groove.play();
   }
   if (tobj.getSymbolID() == 2){
     fgroove.play(); 
   }
+  */
+  
   if (verbose) println("add obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()); 
 }
 
@@ -205,11 +141,13 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
+  /*        
   if (tobj.getSymbolID() == 50){
     freq = map(tobj.getY(), 0, 1, 60, 10000);
     println(freq);
     lpf.setFreq(freq);
   }
+  
   if (tobj.getSymbolID() == 2){
     float dl = map( tobj.getX(), 0, 1, 0.01, 5 );
     float dp = map( tobj.getY(), 1, 0, 1.00, 5 );
@@ -217,6 +155,7 @@ void updateTuioObject (TuioObject tobj) {
     flange.delay.setLastValue(dl);
     flange.depth.setLastValue( dp );
   }
+  */
 }
 
 // called when an object is removed from the scene
@@ -225,58 +164,155 @@ void removeTuioObject(TuioObject tobj) {
   //if (tobj.getSymbolID() == 2){
   //  toggleSound();
   //}
+  
+  /*
   if (tobj.getSymbolID() == 50){
     groove.pause();
   }
   if (tobj.getSymbolID() == 2){
     fgroove.pause();
   }
+  */
+  
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
 }
 
+
 // --------------------------------------------------------------
+// (UNSUED) TUIO functions
+// --------------------------------------------------------------
+
 // called when a cursor is added to the scene
 void addTuioCursor(TuioCursor tcur) {
-  if (verbose) println("add cur "+tcur.getCursorID()+" ("+tcur.getSessionID()+ ") " +tcur.getX()+" "+tcur.getY());
   //redraw();
 }
 
 // called when a cursor is moved
 void updateTuioCursor (TuioCursor tcur) {
-  if (verbose) println("set cur "+tcur.getCursorID()+" ("+tcur.getSessionID()+ ") " +tcur.getX()+" "+tcur.getY()
-          +" "+tcur.getMotionSpeed()+" "+tcur.getMotionAccel());
   //redraw();
 }
 
 // called when a cursor is removed from the scene
 void removeTuioCursor(TuioCursor tcur) {
-  if (verbose) println("del cur "+tcur.getCursorID()+" ("+tcur.getSessionID()+")");
   //redraw()
 }
 
-// --------------------------------------------------------------
+
 // called when a blob is added to the scene
 void addTuioBlob(TuioBlob tblb) {
-  if (verbose) println("add blb "+tblb.getBlobID()+" ("+tblb.getSessionID()+") "+tblb.getX()+" "+tblb.getY()+" "+tblb.getAngle()+" "+tblb.getWidth()+" "+tblb.getHeight()+" "+tblb.getArea());
   //redraw();
 }
 
 // called when a blob is moved
 void updateTuioBlob (TuioBlob tblb) {
-  if (verbose) println("set blb "+tblb.getBlobID()+" ("+tblb.getSessionID()+") "+tblb.getX()+" "+tblb.getY()+" "+tblb.getAngle()+" "+tblb.getWidth()+" "+tblb.getHeight()+" "+tblb.getArea()
-          +" "+tblb.getMotionSpeed()+" "+tblb.getRotationSpeed()+" "+tblb.getMotionAccel()+" "+tblb.getRotationAccel());
   //redraw()
 }
 
 // called when a blob is removed from the scene
 void removeTuioBlob(TuioBlob tblb) {
-  if (verbose) println("del blb "+tblb.getBlobID()+" ("+tblb.getSessionID()+")");
   //redraw()
 }
 
-// --------------------------------------------------------------
+
 // called at the end of each TUIO frame
 void refresh(TuioTime frameTime) {
   if (verbose) println("frame #"+frameTime.getFrameID()+" ("+frameTime.getTotalMilliseconds()+")");
   if (callback) redraw();
+}
+
+
+
+
+// --------------------------------------------------------------
+// Websocket functions
+// --------------------------------------------------------------
+void sendMessageToClients() {
+  ws.sendMessage(player1String);
+}
+
+//Called when we recieve a websocket event.
+void webSocketServerEvent(String msg) {
+  println(msg);
+  String[] data = split(msg, ':');
+  
+  String payload = data[0];
+  int value = Integer.parseInt(data[1]);
+ 
+  switch(payload) {
+    case "playing":
+      player1.togglePlay();
+    break;
+      
+    default:
+    break;
+  }
+}
+
+
+
+
+// --------------------------------------------------------------
+// Keyboard functions(not needed, only used to debug)
+// --------------------------------------------------------------
+void keyPressed() {
+  //Toggle play/pause
+  if ( key == ' ' ) {
+    player1.togglePlay();
+  }
+  
+  
+  //Volume
+  if (key == 'q') {
+    player1.resetVolume();
+  }
+  
+  if (key == 'a') {
+    player1.increaseVolume();
+  }
+  
+  if (key == 'z') {
+    player1.decreaseVolume();
+  }
+  
+  
+  //Bpm
+  if (key == 'w') {
+    player1.resetBpm();
+  }
+  
+  if (key == 's') {
+    player1.increaseBpm();
+  }
+  
+  if (key == 'x') {
+    player1.decreaseBpm();
+  }
+  
+  
+  //Echo
+  if (key == 'e') {
+    player1.toggleEcho();
+  }
+  
+  if (key == 'd') {
+    player1.increaseEcho();
+  }
+  
+  if (key == 'c') {
+    player1.decreaseEcho();
+  }
+  
+  
+  //Filter
+  if (key == 'r') {
+    player1.toggleFilter();
+  }
+  
+  if (key == 'f') {
+    player1.increaseFilter();
+  }
+  
+  if (key == 'v') {
+    player1.decreaseFilter();
+  }
 }

@@ -22,6 +22,8 @@ class Player {
   AudioOutput out;
   FFT         fft;
   
+  final int maxSpecSize = 8;
+  
   JSONObject song;
   JSONObject filter;
   JSONObject echo;
@@ -64,7 +66,7 @@ class Player {
   FilePlayer filePlayer;
   AudioRecordingStream fileStream;
 
-  Player(WebSocketServer server) {
+  Player(MultimodalTangoTable server) {
     minim = new Minim(server);
     out = minim.getLineOut();
     
@@ -270,7 +272,7 @@ class Player {
     //Song info
     fft.forward( out.mix );
     
-    for(int i = 0; i < fft.specSize(); i++) {
+    for(int i = 0; i < min(fft.specSize(), maxSpecSize); i++) {
       waveform.setFloat(i, fft.getBand(i));
       // draw the line for frequency band i, scaling it up a bit so we can see it
       // rect(i * 10, 0, 5, fft.getBand(i)*3);
