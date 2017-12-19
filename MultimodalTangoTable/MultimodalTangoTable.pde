@@ -58,7 +58,7 @@ PImage lpfimg;
 void setup()
 {
   // GUI setup
-  size(800, 1200, P3D);
+  size(800, 1000, P3D);
   font = createFont("Arial", 12);
   textFont(font);
   noCursor();
@@ -314,5 +314,25 @@ void keyPressed() {
   
   if (key == 'v') {
     player1.decreaseFilter();
+  }
+  
+   //Flanger
+  if (key == 't') {
+    player1.toggleFlanger();
+  }
+  
+  if (key == 'g') {
+    player1.increaseFlangeRate();
+  }
+  
+  if (key == 'b') {
+    player1.decreaseFlangeRate();
+  }
+  if (key == 'h') {
+    player1.increaseFlangeDepth();
+  }
+  
+  if (key == 'n') {
+    player1.decreaseFlangeDepth();
   }
 }

@@ -27,11 +27,13 @@ class Player {
   JSONObject song;
   JSONObject filter;
   JSONObject echo;
+  JSONObject flange;
   
   JSONArray  waveform;
   JSONObject songFiducial;
   JSONObject filterFiducial;
   JSONObject echoFiducial;
+  JSONObject flangeFiducial;
   
   TickRate rateControl;
   final float minTickRate = 0.0;
@@ -52,6 +54,16 @@ class Player {
   final float deltaDelayTime = 0.01;
   final float defaultDelayTime = minDelayTime;
   
+  Flanger flangeControl;
+  final float defaultFlangeRate = 1.0; // in Hz, max value 3 and min 0.1
+  final float maxFlangeRate = 3.0;
+  final float minFlangeRate = 0.1;
+  final float stepFlangeRate = 0.1;
+  final float defaultFlangeDepth = 1.0;
+  final float maxFlangeDepth = 5.0;
+  final float minFlangeDepth = 0.0;
+  final float stepFlangeDepth = 0.2;
+  
   MoogFilter  filterControl;
   final float filterResonance = 0;
   final MoogFilter.Type filterType = MoogFilter.Type.BP;
@@ -62,6 +74,7 @@ class Player {
   
   Bypass<Delay> delayBypassControl;
   Bypass<MoogFilter> filterBypassControl;
+  Bypass<Flanger> flangeBypassControl;
   
   FilePlayer filePlayer;
   AudioRecordingStream fileStream;
@@ -70,7 +83,7 @@ class Player {
     minim = new Minim(server);
     out = minim.getLineOut();
     
-    fileStream = minim.loadFileStream("Thats_not_me.mp3");
+    fileStream = minim.loadFileStream("simpleGuitar.mp3");
     filePlayer = new FilePlayer(fileStream);
     
     //Volume
@@ -84,14 +97,24 @@ class Player {
     delayControl = new Delay(maxDelayTime, delayAmp, true, true);
     delayControl.setDelTime(minDelayTime);
     
+    //Flanger
+    flangeControl = new Flanger( 1,     // delay length in milliseconds ( clamped to [0,100] )
+                        defaultFlangeRate,   // lfo rate in Hz ( clamped at low end to 0.001 )
+                        3,     // delay depth in milliseconds ( minimum of 0 )
+                        0.5f,   // amount of feedback ( clamped to [0,1] )
+                        1f,   // amount of dry signal ( clamped to [0,1] )
+                        0.7f    // amount of wet signal ( clamped to [0,1] )
+                        );
+                      
     //Filter
     filterControl = new MoogFilter(defaultFilterFrequency, filterResonance, filterType);
     
     //Bypasses, allows us to toggle ugens.
     delayBypassControl = new Bypass<Delay>(delayControl);
     filterBypassControl = new Bypass<MoogFilter>(filterControl);
-  
-    filePlayer.patch(filterBypassControl).patch(delayBypassControl).patch(gainControl).patch(rateControl).patch(out);
+    flangeBypassControl = new Bypass<Flanger>(flangeControl);
+    
+    filePlayer.patch(filterBypassControl).patch(delayBypassControl).patch(flangeBypassControl).patch(gainControl).patch(rateControl).patch(out);
     fft = new FFT(out.bufferSize() , filePlayer.sampleRate());   
     
     // Start playing first song
@@ -113,6 +136,8 @@ class Player {
     echo = new JSONObject();
     echoFiducial = new JSONObject();
     
+    flange = new JSONObject();
+    flangeFiducial = new JSONObject();
     
     //Filter info
     filterFiducial.setInt("x", 0);
@@ -130,6 +155,15 @@ class Player {
     echo.setFloat("value", defaultDelayTime/maxDelayTime);
     echo.setJSONObject("fiducial", echoFiducial);
     
+    //Flange info
+    flangeFiducial.setInt("x", 0);
+    flangeFiducial.setInt("y", 0);
+    
+    flange.setBoolean("active", !flangeBypassControl.isActive());
+    flange.setFloat("value", defaultFlangeRate/maxFlangeRate);
+    flange.setFloat("depth_value", defaultFlangeDepth/maxFlangeDepth);    
+    flange.setJSONObject("fiducial", flangeFiducial);
+    
     //Song info
     songFiducial.setInt("x", 0);
     songFiducial.setInt("y", 0);
@@ -141,6 +175,7 @@ class Player {
     song.setBoolean("playing", filePlayer.isPlaying());
     song.setJSONArray("waveform", waveform);
     song.setJSONObject("echo", echo);
+    song.setJSONObject("flange", flange);
     song.setJSONObject("filter", filter);
     song.setJSONObject("fiducial", songFiducial);
   }
@@ -239,6 +274,40 @@ class Player {
     echo.setFloat("value", newDelayTime/maxDelayTime);
   }
   
+  //Flanger
+  void toggleFlanger() {
+    if ( flangeBypassControl.isActive() ) {
+      flangeBypassControl.deactivate();
+    } else {
+      flangeBypassControl.activate();
+    }
+    
+    flange.setBoolean("active", !flangeBypassControl.isActive());
+  }
+  
+  void increaseFlangeRate() { // Angle adjusted
+    float newFlangeRate = min(flangeControl.rate.getLastValue() + stepFlangeRate, maxFlangeRate);
+    flangeControl.rate.setLastValue(newFlangeRate);
+    flange.setFloat("value", newFlangeRate/maxFlangeRate);
+  }
+  
+  void decreaseFlangeRate() { // Angle
+    float newFlangeRate = max(flangeControl.rate.getLastValue() - stepFlangeRate, minFlangeRate);
+    flangeControl.rate.setLastValue(newFlangeRate);
+    flange.setFloat("value", newFlangeRate/maxFlangeRate);
+  }
+  
+  void increaseFlangeDepth() { // Angle adjusted
+    float newFlangeDepth = min(flangeControl.depth.getLastValue() + stepFlangeDepth, maxFlangeDepth);
+    flangeControl.depth.setLastValue(newFlangeDepth);
+    flange.setFloat("depth_value", newFlangeDepth/maxFlangeDepth);
+  }
+  
+  void decreaseFlangeDepth() { // Angle
+    float newFlangeDepth = max(flangeControl.depth.getLastValue() - stepFlangeDepth, minFlangeDepth);
+    flangeControl.depth.setLastValue(newFlangeDepth);
+    flange.setFloat("depth_value", newFlangeDepth/maxFlangeDepth);
+  }
   
   
   //Filter
