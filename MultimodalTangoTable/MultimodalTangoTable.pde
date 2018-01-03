@@ -48,6 +48,7 @@ PFont font;
 
 PImage flangeimg;
 PImage lpfimg;
+PImage songimg;
 
 
 
@@ -61,12 +62,12 @@ void setup()
   size(800, 1000, P3D);
   font = createFont("Arial", 12);
   textFont(font);
-  noCursor();
   noStroke();
   fill(0);
   
   flangeimg = loadImage("flange.jpg");
   lpfimg = loadImage("filter_lowpass.jpg");
+  songimg = loadImage("music.jpg");
   
   //Initialize TuioClient
   tuioClient  = new TuioProcessing(this);
@@ -99,8 +100,10 @@ void draw()
      // set image of tuio objects
      if (tobj.getSymbolID() == 60){
        image(flangeimg, -object_size, -object_size, 2*object_size, 2*object_size);
-     } else if (tobj.getSymbolID() == 50){
+     } else if (tobj.getSymbolID() == 2){
        image(lpfimg, -object_size, -object_size, 2*object_size, 2*object_size);
+     } else if (tobj.getSymbolID() == 50){
+       image(songimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else {
        rect(-object_size/2,-object_size/2,object_size,object_size);
      }
@@ -125,14 +128,18 @@ void draw()
 
 // called when an object is added to the scene
 void addTuioObject(TuioObject tobj) {
-  /*
+  // Player1 toggle
   if (tobj.getSymbolID() == 50){
-    groove.play();
+    player1.togglePlay();
   }
+  // Toggle filter
   if (tobj.getSymbolID() == 2){
-    fgroove.play(); 
+    player1.toggleFilter();
   }
-  */
+  // Toggle flanger
+  if (tobj.getSymbolID() == 3){
+    player1.toggleFlanger();
+  }
   
   if (verbose) println("add obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()); 
 }
@@ -141,11 +148,17 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
-  /*        
+  if (tobj.getSymbolID() == 2){
+    float mapVal = map(tobj.getX(), 0.05, 0.95, 0, 1);
+    player1.setFilter(mapVal);
+    
+  }
+
+  
+  /*
+  
   if (tobj.getSymbolID() == 50){
-    freq = map(tobj.getY(), 0, 1, 60, 10000);
-    println(freq);
-    lpf.setFreq(freq);
+    int vol = tobj
   }
   
   if (tobj.getSymbolID() == 2){
@@ -160,11 +173,12 @@ void updateTuioObject (TuioObject tobj) {
 
 // called when an object is removed from the scene
 void removeTuioObject(TuioObject tobj) {
-  // fiducial_id = 2 gets through and toggles sound in PureData
-  //if (tobj.getSymbolID() == 2){
-  //  toggleSound();
-  //}
-  
+  if (tobj.getSymbolID() == 50){
+    player1.togglePlay();
+  }
+  if (tobj.getSymbolID() == 2){
+    player1.toggleFilter();
+  }
   /*
   if (tobj.getSymbolID() == 50){
     groove.pause();
@@ -309,11 +323,11 @@ void keyPressed() {
   }
   
   if (key == 'f') {
-    player1.increaseFilter();
+    //player1.increaseFilter();
   }
   
   if (key == 'v') {
-    player1.decreaseFilter();
+    //player1.decreaseFilter();
   }
   
    //Flanger

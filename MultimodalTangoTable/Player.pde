@@ -65,8 +65,8 @@ class Player {
   final float stepFlangeDepth = 0.2;
   
   MoogFilter  filterControl;
-  final float filterResonance = 0;
-  final MoogFilter.Type filterType = MoogFilter.Type.BP;
+  final float filterResonance = 0.5;
+  final MoogFilter.Type filterType = MoogFilter.Type.LP;
   final float minFilterFrequency = 200;
   final float maxFilterFrequency = 12000;
   final float deltaFilterFrequency = 500;
@@ -116,12 +116,6 @@ class Player {
     
     filePlayer.patch(filterBypassControl).patch(delayBypassControl).patch(flangeBypassControl).patch(gainControl).patch(rateControl).patch(out);
     fft = new FFT(out.bufferSize() , filePlayer.sampleRate());   
-    
-    // Start playing first song
-    filePlayer.loop();
-    
-    
-    
     
     
     //Default values
@@ -178,6 +172,11 @@ class Player {
     song.setJSONObject("flange", flange);
     song.setJSONObject("filter", filter);
     song.setJSONObject("fiducial", songFiducial);
+    
+    // Sets start value to false
+    toggleFilter(); 
+    toggleFlanger();
+    toggleEcho();
   }
   
   
@@ -188,7 +187,7 @@ class Player {
   }
   
   void play() {
-    filePlayer.play();
+    filePlayer.loop();
     song.setBoolean("playing", true);
   }
   
@@ -321,7 +320,19 @@ class Player {
     
     filter.setBoolean("active", !filterBypassControl.isActive());
   }
+  void setFilter(float xValue){ // value of fiducial x-axis
+    if (xValue < 0){
+      xValue = 0;
+    }
+    if (xValue > 1){
+      xValue = 1;
+    }
+    float newVal = (maxFilterFrequency - minFilterFrequency) * xValue + minFilterFrequency;
+    filterControl.frequency.setLastValue(newVal);
+    filter.setFloat("value", newVal);
+  }
   
+  /*
   void increaseFilter() {
     float newFilterFrequence = min(filterControl.frequency.getLastValue() + deltaFilterFrequency, maxFilterFrequency);
     filterControl.frequency.setLastValue(newFilterFrequence);
@@ -333,7 +344,7 @@ class Player {
     filterControl.frequency.setLastValue(newFilterFrequence);
     filter.setFloat("value", newFilterFrequence/maxFilterFrequency);
   }
-  
+  */
   
   
   //To string
