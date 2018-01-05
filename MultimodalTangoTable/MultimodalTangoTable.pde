@@ -48,9 +48,14 @@ PFont font;
 
 PImage flangeimg;
 PImage lpfimg;
+PImage echoimg;
 PImage songimg;
+PImage bpmimg;
 
-
+// Values to check against last value
+float flangerAngle;
+float echoAngle;
+float bpmY;
 
 
 // --------------------------------------------------------------
@@ -59,15 +64,19 @@ PImage songimg;
 void setup()
 {
   // GUI setup
-  size(800, 1000, P3D);
+  //size(800, 1000, P3D);
+  fullScreen();
   font = createFont("Arial", 12);
   textFont(font);
+  noCursor();
   noStroke();
   fill(0);
   
   flangeimg = loadImage("flange.jpg");
   lpfimg = loadImage("filter_lowpass.jpg");
   songimg = loadImage("music.jpg");
+  echoimg = loadImage("echo.png");
+  bpmimg = loadImage("bpm.png");
   
   //Initialize TuioClient
   tuioClient  = new TuioProcessing(this);
@@ -98,12 +107,16 @@ void draw()
      rotate(tobj.getAngle());
      
      // set image of tuio objects
-     if (tobj.getSymbolID() == 60){
+     if (tobj.getSymbolID() == 3){
        image(flangeimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else if (tobj.getSymbolID() == 2){
        image(lpfimg, -object_size, -object_size, 2*object_size, 2*object_size);
+     } else if (tobj.getSymbolID() == 4){
+       image(echoimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else if (tobj.getSymbolID() == 50){
        image(songimg, -object_size, -object_size, 2*object_size, 2*object_size);
+     } else if (tobj.getSymbolID() == 5){
+       image(bpmimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else {
        rect(-object_size/2,-object_size/2,object_size,object_size);
      }
@@ -140,6 +153,15 @@ void addTuioObject(TuioObject tobj) {
   if (tobj.getSymbolID() == 3){
     player1.toggleFlanger();
   }
+  // Toggle echo
+  if (tobj.getSymbolID() == 4){
+    player1.toggleEcho();
+  }
+  // Reset BPM
+  if (tobj.getSymbolID() == 5){
+    player1.resetBpm();
+  }
+  
   
   if (verbose) println("add obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()); 
 }
@@ -148,27 +170,52 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
+  
+  // Volume control
+  if (tobj.getSymbolID() == 50){
+    float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
+    player1.setVolume(inverseY);
+  }
+  
+  // Filter control
   if (tobj.getSymbolID() == 2){
     float mapVal = map(tobj.getX(), 0.05, 0.95, 0, 1);
     player1.setFilter(mapVal);
+  }
+  
+  // Flanger control
+  if (tobj.getSymbolID() == 3){
+    float mapVal = map(tobj.getY(), 0.05, 0.90, 1, 0);
+    player1.setFlangeDepth(mapVal);
     
+    if(flangerAngle < tobj.getAngle()){
+      player1.increaseFlangeRate();
+    } else if (flangerAngle > tobj.getAngle()){
+      player1.decreaseFlangeRate();
+    }
+    flangerAngle = tobj.getAngle();
   }
-
   
-  /*
-  
-  if (tobj.getSymbolID() == 50){
-    int vol = tobj
+  // Echo control
+  if (tobj.getSymbolID() == 4){
+    if(echoAngle < tobj.getAngle()){
+      player1.increaseEcho();
+    } else if (echoAngle > tobj.getAngle()){
+      player1.decreaseEcho();
+    }
+    echoAngle = tobj.getAngle();
   }
   
-  if (tobj.getSymbolID() == 2){
-    float dl = map( tobj.getX(), 0, 1, 0.01, 5 );
-    float dp = map( tobj.getY(), 1, 0, 1.00, 5 );
-    println(tobj.getX());
-    flange.delay.setLastValue(dl);
-    flange.depth.setLastValue( dp );
+  //BPM control
+  if (tobj.getSymbolID() == 5){
+    float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
+    if(bpmY < inverseY){
+      player1.increaseBpm();
+    } else if (bpmY > inverseY){
+      player1.decreaseBpm();
+    }
+    bpmY = inverseY;
   }
-  */
 }
 
 // called when an object is removed from the scene
@@ -179,14 +226,16 @@ void removeTuioObject(TuioObject tobj) {
   if (tobj.getSymbolID() == 2){
     player1.toggleFilter();
   }
-  /*
-  if (tobj.getSymbolID() == 50){
-    groove.pause();
+  if (tobj.getSymbolID() == 3){
+    player1.toggleFlanger();
   }
-  if (tobj.getSymbolID() == 2){
-    fgroove.pause();
+  if (tobj.getSymbolID() == 4){
+    player1.toggleEcho();
   }
-  */
+  // Reset BPM
+  if (tobj.getSymbolID() == 5){
+    player1.resetBpm();
+  }
   
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
 }
@@ -279,14 +328,7 @@ void keyPressed() {
   if (key == 'q') {
     player1.resetVolume();
   }
-  
-  if (key == 'a') {
-    player1.increaseVolume();
-  }
-  
-  if (key == 'z') {
-    player1.decreaseVolume();
-  }
+
   
   
   //Bpm
@@ -330,23 +372,4 @@ void keyPressed() {
     //player1.decreaseFilter();
   }
   
-   //Flanger
-  if (key == 't') {
-    player1.toggleFlanger();
-  }
-  
-  if (key == 'g') {
-    player1.increaseFlangeRate();
-  }
-  
-  if (key == 'b') {
-    player1.decreaseFlangeRate();
-  }
-  if (key == 'h') {
-    player1.increaseFlangeDepth();
-  }
-  
-  if (key == 'n') {
-    player1.decreaseFlangeDepth();
-  }
 }

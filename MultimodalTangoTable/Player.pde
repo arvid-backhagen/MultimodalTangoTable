@@ -44,7 +44,7 @@ class Player {
   Gain gainControl;
   final float minGain = -60.0;
   final float maxGain = 0.0;
-  final float deltaGain = 2.0;
+  final float deltaGain = 1.0;
   final float defaultGain = 0.0;
   
   Delay delayControl;
@@ -83,7 +83,7 @@ class Player {
     minim = new Minim(server);
     out = minim.getLineOut();
     
-    fileStream = minim.loadFileStream("simpleGuitar.mp3");
+    fileStream = minim.loadFileStream("Thats_not_me.mp3");
     filePlayer = new FilePlayer(fileStream);
     
     //Volume
@@ -138,7 +138,7 @@ class Player {
     filterFiducial.setInt("y", 0);
     
     filter.setBoolean("active", !filterBypassControl.isActive());
-    filter.setFloat("value", defaultFilterFrequency/maxFilterFrequency);
+    filter.setFloat("frequency_value", defaultFilterFrequency/maxFilterFrequency);
     filter.setJSONObject("fiducial", filterFiducial);
     
     //Echo info
@@ -146,7 +146,7 @@ class Player {
     echoFiducial.setInt("y", 0);
     
     echo.setBoolean("active", !delayBypassControl.isActive());
-    echo.setFloat("value", defaultDelayTime/maxDelayTime);
+    echo.setFloat("delay_value", defaultDelayTime/maxDelayTime);
     echo.setJSONObject("fiducial", echoFiducial);
     
     //Flange info
@@ -154,7 +154,7 @@ class Player {
     flangeFiducial.setInt("y", 0);
     
     flange.setBoolean("active", !flangeBypassControl.isActive());
-    flange.setFloat("value", defaultFlangeRate/maxFlangeRate);
+    flange.setFloat("rate_value", defaultFlangeRate/maxFlangeRate);
     flange.setFloat("depth_value", defaultFlangeDepth/maxFlangeDepth);    
     flange.setJSONObject("fiducial", flangeFiducial);
     
@@ -212,28 +212,25 @@ class Player {
     gainControl.setValue(defaultGain);
     song.setFloat("volume", 1 - (defaultGain/minGain));
   }
-  
-  void increaseVolume() {
-    float newGain = min(gainControl.gain.getLastValue() + deltaGain, maxGain);
-    gainControl.gain.setLastValue(newGain);
-    gainControl.setValue(newGain);
-    song.setFloat("volume", 1 - (newGain/minGain));
+  void setVolume(float yValue){ // value of fiducial y-axis
+    if (yValue < 0){
+      yValue = 0;
+    }
+    if (yValue > 1){
+      yValue = 1;
+    }
+    float newVal = (maxGain - minGain) * yValue + minGain;
+    gainControl.gain.setLastValue(newVal);
+    gainControl.setValue(newVal);
+    song.setFloat("volume", 1 - newVal/minGain);
   }
-  
-  void decreaseVolume() {
-    float newGain = max(gainControl.gain.getLastValue() - deltaGain, minGain);
-    gainControl.gain.setLastValue(newGain);
-    gainControl.setValue(newGain);
-    song.setFloat("volume", 1 - (newGain/minGain));
-  }
-  
-  
-  
+   
   //Bpm
   void resetBpm() {
     rateControl.value.setLastValue(defaultTickRate);
     song.setFloat("tempo", defaultTickRate);
   }
+  
   
   void increaseBpm() {
     float newTickRate = min(rateControl.value.getLastValue() + deltaTickrate, maxTickRate);
@@ -264,13 +261,13 @@ class Player {
   void increaseEcho() {
     float newDelayTime = min(delayControl.delTime.getLastValue() + deltaDelayTime, maxDelayTime);
     delayControl.setDelTime(newDelayTime);
-    echo.setFloat("value", newDelayTime/maxDelayTime);
+    echo.setFloat("delay_value", newDelayTime/maxDelayTime);
   }
   
   void decreaseEcho() {
     float newDelayTime = max(delayControl.delTime.getLastValue() - deltaDelayTime, minDelayTime);
     delayControl.setDelTime(newDelayTime);
-    echo.setFloat("value", newDelayTime/maxDelayTime);
+    echo.setFloat("delay_value", newDelayTime/maxDelayTime);
   }
   
   //Flanger
@@ -280,34 +277,30 @@ class Player {
     } else {
       flangeBypassControl.activate();
     }
-    
     flange.setBoolean("active", !flangeBypassControl.isActive());
   }
-  
+  void setFlangeDepth(float yValue){ // value of fiducial y-axis
+    if (yValue < 0){
+      yValue = 0;
+    }
+    if (yValue > 1){
+      yValue = 1;
+    }
+    float newVal = (maxFlangeDepth - minFlangeDepth) * yValue + minFlangeDepth;
+    flangeControl.depth.setLastValue(newVal);
+    flange.setFloat("depth_value", newVal);
+  }
   void increaseFlangeRate() { // Angle adjusted
     float newFlangeRate = min(flangeControl.rate.getLastValue() + stepFlangeRate, maxFlangeRate);
     flangeControl.rate.setLastValue(newFlangeRate);
-    flange.setFloat("value", newFlangeRate/maxFlangeRate);
+    flange.setFloat("rate_value", newFlangeRate);
   }
   
   void decreaseFlangeRate() { // Angle
     float newFlangeRate = max(flangeControl.rate.getLastValue() - stepFlangeRate, minFlangeRate);
     flangeControl.rate.setLastValue(newFlangeRate);
-    flange.setFloat("value", newFlangeRate/maxFlangeRate);
+    flange.setFloat("rate_value", newFlangeRate);
   }
-  
-  void increaseFlangeDepth() { // Angle adjusted
-    float newFlangeDepth = min(flangeControl.depth.getLastValue() + stepFlangeDepth, maxFlangeDepth);
-    flangeControl.depth.setLastValue(newFlangeDepth);
-    flange.setFloat("depth_value", newFlangeDepth/maxFlangeDepth);
-  }
-  
-  void decreaseFlangeDepth() { // Angle
-    float newFlangeDepth = max(flangeControl.depth.getLastValue() - stepFlangeDepth, minFlangeDepth);
-    flangeControl.depth.setLastValue(newFlangeDepth);
-    flange.setFloat("depth_value", newFlangeDepth/maxFlangeDepth);
-  }
-  
   
   //Filter
   void toggleFilter() {
@@ -320,6 +313,7 @@ class Player {
     
     filter.setBoolean("active", !filterBypassControl.isActive());
   }
+  
   void setFilter(float xValue){ // value of fiducial x-axis
     if (xValue < 0){
       xValue = 0;
@@ -329,23 +323,8 @@ class Player {
     }
     float newVal = (maxFilterFrequency - minFilterFrequency) * xValue + minFilterFrequency;
     filterControl.frequency.setLastValue(newVal);
-    filter.setFloat("value", newVal);
+    filter.setFloat("frequency_value", newVal);
   }
-  
-  /*
-  void increaseFilter() {
-    float newFilterFrequence = min(filterControl.frequency.getLastValue() + deltaFilterFrequency, maxFilterFrequency);
-    filterControl.frequency.setLastValue(newFilterFrequence);
-    filter.setFloat("value", newFilterFrequence/maxFilterFrequency);
-  }
-  
-  void decreaseFilter() {
-    float newFilterFrequence = max(filterControl.frequency.getLastValue() - deltaFilterFrequency, minFilterFrequency);
-    filterControl.frequency.setLastValue(newFilterFrequence);
-    filter.setFloat("value", newFilterFrequence/maxFilterFrequency);
-  }
-  */
-  
   
   //To string
   String toJsonString() {
