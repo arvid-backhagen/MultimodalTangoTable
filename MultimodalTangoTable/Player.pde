@@ -83,7 +83,7 @@ class Player {
     minim = new Minim(server);
     out = minim.getLineOut();
     
-    fileStream = minim.loadFileStream("Thats_not_me.mp3");
+    fileStream = minim.loadFileStream("Daft Punk - Around The World.mp3");
     filePlayer = new FilePlayer(fileStream);
     
     //Volume
@@ -261,13 +261,13 @@ class Player {
   void increaseEcho() {
     float newDelayTime = min(delayControl.delTime.getLastValue() + deltaDelayTime, maxDelayTime);
     delayControl.setDelTime(newDelayTime);
-    echo.setFloat("delay_value", newDelayTime/maxDelayTime);
+    echo.setFloat("delay_value", newDelayTime);
   }
   
   void decreaseEcho() {
     float newDelayTime = max(delayControl.delTime.getLastValue() - deltaDelayTime, minDelayTime);
     delayControl.setDelTime(newDelayTime);
-    echo.setFloat("delay_value", newDelayTime/maxDelayTime);
+    echo.setFloat("delay_value", newDelayTime);
   }
   
   //Flanger
