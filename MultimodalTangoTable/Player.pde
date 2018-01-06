@@ -22,7 +22,7 @@ class Player {
   AudioOutput out;
   FFT         fft;
   
-  final int maxSpecSize = 8;
+  final int maxSpecSize = 60;
   
   JSONObject song;
   JSONObject filter;
@@ -45,7 +45,7 @@ class Player {
   final float minGain = -60.0;
   final float maxGain = 0.0;
   final float deltaGain = 1.0;
-  final float defaultGain = 0.0;
+  final float defaultGain = -6.0;
   
   Delay delayControl;
   final float delayAmp = 0.4;
@@ -163,10 +163,11 @@ class Player {
     songFiducial.setInt("y", 0);
     
     song.setInt("id", 1);
+    song.setInt("length", filePlayer.length());
     song.setFloat("tempo", defaultTickRate);
     song.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
     song.setFloat("position", filePlayer.position()/filePlayer.length());
-    song.setFloat("volume", 1 + (defaultGain/minGain));
+    song.setFloat("volume", 1 - (defaultGain/minGain));
     song.setBoolean("playing", filePlayer.isPlaying());
     song.setJSONArray("waveform", waveform);
     song.setJSONObject("echo", echo);
@@ -188,7 +189,7 @@ class Player {
   }
   
   void play() {
-    filePlayer.loop();
+    filePlayer.play();
     song.setBoolean("playing", true);
   }
   
@@ -384,8 +385,6 @@ class Player {
     
     for(int i = 0; i < min(fft.specSize(), maxSpecSize); i++) {
       waveform.setFloat(i, fft.getBand(i));
-      // draw the line for frequency band i, scaling it up a bit so we can see it
-      // rect(i * 10, 0, 5, fft.getBand(i)*3);
     }
      
     song.setFloat("position", ((float) filePlayer.position()/filePlayer.length()));
