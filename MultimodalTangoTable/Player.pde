@@ -100,7 +100,7 @@ class Player {
     //Flanger
     flangeControl = new Flanger( 1,     // delay length in milliseconds ( clamped to [0,100] )
                         defaultFlangeRate,   // lfo rate in Hz ( clamped at low end to 0.001 )
-                        3,     // delay depth in milliseconds ( minimum of 0 )
+                        defaultFlangeDepth,     // delay depth in milliseconds ( minimum of 0 )
                         0.5f,   // amount of feedback ( clamped to [0,1] )
                         1f,   // amount of dry signal ( clamped to [0,1] )
                         0.7f    // amount of wet signal ( clamped to [0,1] )
@@ -138,7 +138,7 @@ class Player {
     filterFiducial.setInt("y", 0);
     
     filter.setBoolean("active", !filterBypassControl.isActive());
-    filter.setFloat("frequency_value", defaultFilterFrequency/maxFilterFrequency);
+    filter.setFloat("frequency_value", map(defaultFilterFrequency, minFilterFrequency, maxFilterFrequency, 1, 0));
     filter.setJSONObject("fiducial", filterFiducial);
     
     //Echo info
@@ -146,7 +146,7 @@ class Player {
     echoFiducial.setInt("y", 0);
     
     echo.setBoolean("active", !delayBypassControl.isActive());
-    echo.setFloat("delay_value", defaultDelayTime/maxDelayTime);
+    echo.setFloat("delay_value", map(defaultDelayTime, minDelayTime, maxDelayTime, 0, 1));
     echo.setJSONObject("fiducial", echoFiducial);
     
     //Flange info
@@ -154,8 +154,8 @@ class Player {
     flangeFiducial.setInt("y", 0);
     
     flange.setBoolean("active", !flangeBypassControl.isActive());
-    flange.setFloat("rate_value", defaultFlangeRate/maxFlangeRate);
-    flange.setFloat("depth_value", defaultFlangeDepth/maxFlangeDepth);    
+    flange.setFloat("rate_value", map(defaultFlangeRate, minFlangeRate, maxFlangeRate, 0, 1));
+    flange.setFloat("depth_value", map(defaultFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
     flange.setJSONObject("fiducial", flangeFiducial);
     
     //Song info
@@ -164,6 +164,7 @@ class Player {
     
     song.setInt("id", 1);
     song.setFloat("tempo", defaultTickRate);
+    song.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
     song.setFloat("position", filePlayer.position()/filePlayer.length());
     song.setFloat("volume", 1 + (defaultGain/minGain));
     song.setBoolean("playing", filePlayer.isPlaying());
@@ -359,19 +360,19 @@ class Player {
     }
     float newVal = (maxFilterFrequency - minFilterFrequency) * xValue + minFilterFrequency;
     filterControl.frequency.setLastValue(newVal);
-    filter.setFloat("frequency_value", map(newVal, minFilterFrequency, maxFilterFrequency, 0, 1));
+    filter.setFloat("frequency_value", map(newVal, minFilterFrequency, maxFilterFrequency, 1, 0));
   }
   
   void increaseFilter() {
     float newFilterFrequence = min(filterControl.frequency.getLastValue() + deltaFilterFrequency, maxFilterFrequency);
     filterControl.frequency.setLastValue(newFilterFrequence);
-    filter.setFloat("frequency_value", map(newFilterFrequence, minFilterFrequency, maxFilterFrequency, 0, 1));
+    filter.setFloat("frequency_value", map(newFilterFrequence, minFilterFrequency, maxFilterFrequency, 1, 0));
   }
   
   void decreaseFilter() {
     float newFilterFrequence = max(filterControl.frequency.getLastValue() - deltaFilterFrequency, minFilterFrequency);
     filterControl.frequency.setLastValue(newFilterFrequence);
-    filter.setFloat("frequency_value", map(newFilterFrequence, minFilterFrequency, maxFilterFrequency, 0, 1));
+    filter.setFloat("frequency_value", map(newFilterFrequence, minFilterFrequency, maxFilterFrequency, 1, 0));
   }
   
   
