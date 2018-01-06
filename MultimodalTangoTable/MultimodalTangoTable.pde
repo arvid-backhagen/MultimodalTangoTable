@@ -1,4 +1,4 @@
-/* //<>// //<>//
+/* //<>// //<>// //<>//
  TUIO 1.1 Demo for Processing
  Copyright (c) 2005-2014 Martin Kaltenbrunner <martin@tuio.org>
 
@@ -94,7 +94,7 @@ void draw()
   background(255);
   fill(0);
   
-  if (frameCount % 30 == 0) {
+  if (frameCount % 3 == 0) {
     thread("sendMessageToClients");
   }
    
@@ -328,7 +328,14 @@ void keyPressed() {
   if (key == 'q') {
     player1.resetVolume();
   }
-
+  
+  if (key == 'a') {
+    player1.increaseVolume();
+  }
+  
+  if (key == 'z') {
+    player1.decreaseVolume();
+  }
   
   
   //Bpm
@@ -365,11 +372,33 @@ void keyPressed() {
   }
   
   if (key == 'f') {
-    //player1.increaseFilter();
+    player1.increaseFilter();
   }
   
   if (key == 'v') {
-    //player1.decreaseFilter();
+    player1.decreaseFilter();
+  }
+  
+  
+  //Flanger
+  if (key == 't') {
+    player1.toggleFlanger();
+  }
+  
+  if (key == 'g') {
+    player1.increaseFlangeRate();
+  }
+  
+  if (key == 'b') {
+    player1.decreaseFlangeRate();
+  }
+  
+  if (key == 'h') {
+    player1.increaseFlangeDepth();
+  }
+  
+  if (key == 'n') {
+    player1.decreaseFlangeDepth();
   }
   
 }
