@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-import logo from '../../img/logo.svg';
-
 import '../../css/mobile.css';
 
 class Mobile extends Component {
@@ -70,7 +68,6 @@ class Mobile extends Component {
     return (
       <div id="mobile">
         <header className="App-header">
-          <img src={ logo } className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
 

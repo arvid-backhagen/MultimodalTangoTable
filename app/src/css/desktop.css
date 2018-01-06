@@ -24,10 +24,80 @@
 
 
 
+  #desktop .cover-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+  }
+
+    #desktop .cover-bg:after {
+      content: "";
+
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      background: linear-gradient(to right, #FFF2F5, #FFDDE4);
+      opacity: 0.95;
+    }
+
+    #desktop .cover-bg img {
+      display: block;
+      width: 100%;
+    }
+
+
+
   #desktop main {
     position: relative;
     margin: 115px;
   }
+
+
+    #desktop main #waveform {
+      display: flex;
+      align-items: flex-end;
+
+      position: absolute;
+      bottom: -150px;
+      left: 50%;
+
+      transform: translateX(-50%);
+    }
+
+      #desktop main #waveform .spec-container {
+        margin: 0 25px;
+      }
+
+        #desktop main #waveform .spec {
+          width: 10px;
+
+          margin: -5px;
+          border-radius: 5px 5px 0 0;
+          transition: height 150ms ease-out;
+        }
+
+        #desktop main #waveform .spec.low {
+          background: #E77D95;
+        }
+
+        #desktop main #waveform .spec.middle {
+          background: #F0A2B3;
+        }
+
+        #desktop main #waveform .spec.high {
+          background: #F9C8D2;
+        }
+
+
 
     #desktop main .fiducial {
       display: flex;
@@ -37,7 +107,10 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+
+      opacity: 0;
+      transform: scale(0.875) translate3d(-50%, -50%, 0);
+      transform-origin: top;
       
       width: 190px;
       height: 190px;
@@ -45,6 +118,13 @@
       background: #FFF;
       border-radius: 95px;
       box-shadow: 0px 0px 50px 0px rgba(246, 176, 191, 0.5);
+
+      transition: opacity 250ms ease-out, transform 250ms ease-out;
+    }
+
+    #desktop main .fiducial[data-active="true"] {
+      opacity: 1;
+      transform: scale(1) translate3d(-50%, -50%, 0);
     }
 
     #desktop main #mobile {
@@ -78,14 +158,24 @@
       }
 
 
-      #desktop main #mobile .volume .fill {
-        position: absolute;
-        left: 0;
-        bottom: 0;
+        #desktop main #mobile .volume .fill {
+          position: absolute;
+          left: 0;
+          bottom: 0;
 
-        width: 100%;
-        background: #E77D95;
-      }
+          width: 100%;
+          background: #E77D95;
+
+          transform: translate3d(0, 0, 0);
+          transition: height 250ms ease-out;
+        }
+
+        #desktop main #mobile .volume .icon {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
 
 
 
@@ -93,11 +183,11 @@
       left: 30%;
     }
 
-    #desktop main #low-pass {
+    #desktop main #echo {
       left: 50%;
     }
 
-    #desktop main #echo {
+    #desktop main #low-pass {
       left: 70%;
     }
 
@@ -105,30 +195,103 @@
       left: 90%;
     }
 
+      #desktop main #flanger #flanger-rate-fiducial {
+        bottom: -45px;
+        left: -15px
+      }
+
+      #desktop main #flanger #flanger-depth-fiducial {
+        bottom: -45px;
+        right: -15px;
+      }
+
+
+
+      #desktop main .interaction-icon {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      #desktop main .interaction-icon.large {
+        width: 26px;
+      }
+
+      #desktop main .interaction-icon.small {
+        width: 16px;
+      }
+
+        #desktop main .interaction-icon img {
+          display: block;
+          width: 100%;
+        }
+
 
 
       #desktop main .fiducial-value {
         position: absolute;
         width: 166px;
         height: 166px;
-        transform: rotate(126deg);
       }
 
         #desktop main .fiducial-value .bar {
           position: absolute;
+          transform: rotate(125deg);
         }
 
         #desktop main .fiducial-value .fill {
           position: absolute;
+          transform: rotate(125deg);
         }
 
           #desktop main .fiducial-value .fill .stroke {
+            transform: translate3d(0, 0, 0);
+            transition: stroke-dasharray 250ms ease-out;
+          }
+
+
+
+      #desktop main .small-fiducial-value {
+        position: absolute;
+        width: 84px;
+        height: 84px;
+
+
+        background: #fff;
+        padding: 10px;
+        border-radius: 60px;
+        box-shadow: 0px 0px 20px 0px rgba(246, 176, 191, 0.2);
+      }
+
+        #desktop main .small-fiducial-value h5 {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+
+          color: #4A4A57;
+        }
+
+        #desktop main .small-fiducial-value .bar {
+          position: absolute;
+          transform: rotate(125deg);
+        }
+
+        #desktop main .small-fiducial-value .fill {
+          position: absolute;
+          transform: rotate(125deg);
+        }
+
+          #desktop main .small-fiducial-value .fill .stroke {
+            transform: translate3d(0, 0, 0);
             transition: stroke-dasharray 250ms ease-out;
           }
 
 
 
       #desktop main .fiducial .info {
+        position: relative;
         text-align: center;
       }
 
@@ -212,6 +375,7 @@
 
         #desktop footer .flex-container .flex-content .time-stamp.current {
           left: 30px;
+          color: #E77D95;
         }
 
         #desktop footer .flex-container .flex-content .time-stamp.end {
@@ -236,5 +400,5 @@
           border-radius: 0px 5px 5px 0px;
 
           transform: translate3d(0, 0, 0);
-          transition: width 50ms linear;
+          transition: width 150ms ease-out;
         }
