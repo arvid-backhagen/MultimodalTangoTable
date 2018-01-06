@@ -1,0 +1,240 @@
+/*   General
+================================================== */
+#desktop {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100%;
+
+  background: #FFDDE4; /* fallback for old browsers */
+  background: linear-gradient(to right, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+  overflow: hidden;
+}
+
+  #desktop .flex-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #desktop .flex-content {
+    flex: 1;
+  }
+
+
+
+  #desktop main {
+    position: relative;
+    margin: 115px;
+  }
+
+    #desktop main .fiducial {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      
+      width: 190px;
+      height: 190px;
+
+      background: #FFF;
+      border-radius: 95px;
+      box-shadow: 0px 0px 50px 0px rgba(246, 176, 191, 0.5);
+    }
+
+    #desktop main #mobile {
+      left: 10%;
+    }
+
+      #desktop main #mobile .bg {
+        position: absolute;
+        border-radius: 95px;
+        overflow: hidden;
+      }
+
+        #desktop main #mobile .bg img {
+          display: block;
+          width: 100%;
+        }
+
+
+      #desktop main #mobile .volume {
+        position: absolute;
+        left: 0;
+
+        transform: translateX(-50%);
+
+        width: 50px;
+        height: 120px;
+        background: #F6B0BF;
+        border-radius: 6px;
+        box-shadow: 0px 5px 20px 0px rgba(246, 176, 191, 0.5);
+        overflow: hidden;
+      }
+
+
+      #desktop main #mobile .volume .fill {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+
+        width: 100%;
+        background: #E77D95;
+      }
+
+
+
+    #desktop main #bpm {
+      left: 30%;
+    }
+
+    #desktop main #low-pass {
+      left: 50%;
+    }
+
+    #desktop main #echo {
+      left: 70%;
+    }
+
+    #desktop main #flanger {
+      left: 90%;
+    }
+
+
+
+      #desktop main .fiducial-value {
+        position: absolute;
+        width: 166px;
+        height: 166px;
+        transform: rotate(126deg);
+      }
+
+        #desktop main .fiducial-value .bar {
+          position: absolute;
+        }
+
+        #desktop main .fiducial-value .fill {
+          position: absolute;
+        }
+
+          #desktop main .fiducial-value .fill .stroke {
+            transition: stroke-dasharray 250ms ease-out;
+          }
+
+
+
+      #desktop main .fiducial .info {
+        text-align: center;
+      }
+
+        #desktop main .fiducial .info p {
+          margin-top: 10px;
+          width: 130px;
+        }
+
+
+
+  #desktop footer {
+    position: relative;
+  }
+
+    #desktop footer figure {
+    }
+
+      #desktop footer figure img {
+        width: 100%;
+        display: block;
+      }
+
+    
+
+    #desktop footer .flex-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+    }
+
+
+
+      #desktop footer .flex-container .flex-content {
+        position: relative;
+      }
+
+        #desktop footer .flex-container .flex-content .track-cover {
+          display: flex;
+          
+          position: absolute;
+          top: 0px;
+          left: 50%;
+
+          width: 140px;
+          height: 140px;
+          border-radius: 140px;
+          background: #FFDDE4; /* fallback for old browsers */
+          background: linear-gradient(to right, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+          box-shadow: 0px 0px 20px 0px rgba(246, 176, 191, 0.5);
+          overflow: hidden;
+
+          transform: translate(-50%, -50%);
+        }
+
+        #desktop footer .flex-container .flex-content .track-cover img {
+          width: 100%;
+        }
+
+        #desktop footer .flex-container .flex-content .track-info {
+          position: absolute;
+          bottom: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          
+          text-align: center;
+        }
+
+          #desktop footer .flex-container .flex-content .track-info h1 {
+            margin: 0 0 20px 0;
+          }
+
+        #desktop footer .flex-container .flex-content .time-stamp {
+          position: absolute;
+          bottom: 30px;
+
+          letter-spacing: 2.5px;
+        }
+
+        #desktop footer .flex-container .flex-content .time-stamp.current {
+          left: 30px;
+        }
+
+        #desktop footer .flex-container .flex-content .time-stamp.end {
+          right: 30px;
+          text-align: right;
+        }
+
+
+
+      #desktop footer .flex-container .progress-bar {
+        width: 100%;
+        height: 10px;
+
+        background: #F6B0BF;
+      }
+
+        #desktop footer .flex-container .progress-bar .progress-fill {
+          width: 0;
+          height: 100%;
+
+          background: #E77D95;
+          border-radius: 0px 5px 5px 0px;
+
+          transform: translate3d(0, 0, 0);
+          transition: width 50ms linear;
+        }
