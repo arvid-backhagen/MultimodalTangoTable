@@ -37,7 +37,7 @@ class Player {
   
   TickRate rateControl;
   final float minTickRate = 0.0;
-  final float maxTickRate = 1.5;
+  final float maxTickRate = 2.0;
   final float deltaTickrate = 0.025;
   final float defaultTickRate = 1.0;
   
@@ -220,6 +220,7 @@ class Player {
     if (yValue > 1){
       yValue = 1;
     }
+    
     float newVal = (maxGain - minGain) * yValue + minGain;
     gainControl.gain.setLastValue(newVal);
     gainControl.setValue(newVal);
@@ -245,19 +246,19 @@ class Player {
   //Bpm
   void resetBpm() {
     rateControl.value.setLastValue(defaultTickRate);
-    song.setFloat("tempo", defaultTickRate);
+    song.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
   }
   
   void increaseBpm() {
     float newTickRate = min(rateControl.value.getLastValue() + deltaTickrate, maxTickRate);
     rateControl.value.setLastValue(newTickRate);
-    song.setFloat("tempo", newTickRate);
+    song.setFloat("tempo", map(newTickRate, minTickRate, maxTickRate, 0, 1));
   }
   
   void decreaseBpm() {
     float newTickRate = max(rateControl.value.getLastValue() - deltaTickrate, minTickRate);
     rateControl.value.setLastValue(newTickRate);
-    song.setFloat("tempo", newTickRate);
+    song.setFloat("tempo", map(newTickRate, minTickRate, maxTickRate, 0, 1));
   }
   
   
@@ -277,13 +278,13 @@ class Player {
   void increaseEcho() {
     float newDelayTime = min(delayControl.delTime.getLastValue() + deltaDelayTime, maxDelayTime);
     delayControl.setDelTime(newDelayTime);
-    echo.setFloat("delay_value", newDelayTime);
+    echo.setFloat("delay_value", map(newDelayTime, minDelayTime, maxDelayTime, 0, 1));
   }
   
   void decreaseEcho() {
     float newDelayTime = max(delayControl.delTime.getLastValue() - deltaDelayTime, minDelayTime);
     delayControl.setDelTime(newDelayTime);
-    echo.setFloat("delay_value", newDelayTime);
+    echo.setFloat("delay_value", map(newDelayTime, minDelayTime, maxDelayTime, 0, 1));
   }
   
   
@@ -298,6 +299,30 @@ class Player {
     flange.setBoolean("active", !flangeBypassControl.isActive());
   }
   
+  void increaseFlangeRate() { // Angle adjusted
+    float newFlangeRate = min(flangeControl.rate.getLastValue() + stepFlangeRate, maxFlangeRate);
+    flangeControl.rate.setLastValue(newFlangeRate);
+    flange.setFloat("rate_value", map(newFlangeRate, minFlangeRate, maxFlangeRate, 0, 1));
+  }
+  
+  void decreaseFlangeRate() { // Angle
+    float newFlangeRate = max(flangeControl.rate.getLastValue() - stepFlangeRate, minFlangeRate);
+    flangeControl.rate.setLastValue(newFlangeRate);
+    flange.setFloat("rate_value", map(newFlangeRate, minFlangeRate, maxFlangeRate, 0, 1));
+  }
+  
+  void increaseFlangeDepth() { // Angle adjusted
+    float newFlangeDepth = min(flangeControl.depth.getLastValue() + stepFlangeDepth, maxFlangeDepth);
+    flangeControl.depth.setLastValue(newFlangeDepth);
+    flange.setFloat("depth_value", map(newFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
+  }
+  
+  void decreaseFlangeDepth() { // Angle
+    float newFlangeDepth = max(flangeControl.depth.getLastValue() - stepFlangeDepth, minFlangeDepth);
+    flangeControl.depth.setLastValue(newFlangeDepth);
+    flange.setFloat("depth_value", map(newFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
+  }
+  
   void setFlangeDepth(float yValue){ // value of fiducial y-axis
     if (yValue < 0){
       yValue = 0;
@@ -305,33 +330,10 @@ class Player {
     if (yValue > 1){
       yValue = 1;
     }
+    
     float newVal = (maxFlangeDepth - minFlangeDepth) * yValue + minFlangeDepth;
     flangeControl.depth.setLastValue(newVal);
-    flange.setFloat("depth_value", newVal);
-  }
-  
-  void increaseFlangeRate() { // Angle adjusted
-    float newFlangeRate = min(flangeControl.rate.getLastValue() + stepFlangeRate, maxFlangeRate);
-    flangeControl.rate.setLastValue(newFlangeRate);
-    flange.setFloat("rate_value", newFlangeRate);
-  }
-  
-  void decreaseFlangeRate() { // Angle
-    float newFlangeRate = max(flangeControl.rate.getLastValue() - stepFlangeRate, minFlangeRate);
-    flangeControl.rate.setLastValue(newFlangeRate);
-    flange.setFloat("rate_value", newFlangeRate);
-  }
-  
-  void increaseFlangeDepth() { // Angle adjusted
-    float newFlangeDepth = min(flangeControl.depth.getLastValue() + stepFlangeDepth, maxFlangeDepth);
-    flangeControl.depth.setLastValue(newFlangeDepth);
-    flange.setFloat("depth_value", newFlangeDepth/maxFlangeDepth);
-  }
-  
-  void decreaseFlangeDepth() { // Angle
-    float newFlangeDepth = max(flangeControl.depth.getLastValue() - stepFlangeDepth, minFlangeDepth);
-    flangeControl.depth.setLastValue(newFlangeDepth);
-    flange.setFloat("depth_value", newFlangeDepth/maxFlangeDepth);
+    flange.setFloat("depth_value", map(newVal, minFlangeRate, maxFlangeRate, 0, 1));
   }
   
   
@@ -357,19 +359,19 @@ class Player {
     }
     float newVal = (maxFilterFrequency - minFilterFrequency) * xValue + minFilterFrequency;
     filterControl.frequency.setLastValue(newVal);
-    filter.setFloat("frequency_value", newVal/maxFilterFrequency);
+    filter.setFloat("frequency_value", map(newVal, minFilterFrequency, maxFilterFrequency, 0, 1));
   }
   
   void increaseFilter() {
     float newFilterFrequence = min(filterControl.frequency.getLastValue() + deltaFilterFrequency, maxFilterFrequency);
     filterControl.frequency.setLastValue(newFilterFrequence);
-    filter.setFloat("frequency_value", newFilterFrequence/maxFilterFrequency);
+    filter.setFloat("frequency_value", map(newFilterFrequence, minFilterFrequency, maxFilterFrequency, 0, 1));
   }
   
   void decreaseFilter() {
     float newFilterFrequence = max(filterControl.frequency.getLastValue() - deltaFilterFrequency, minFilterFrequency);
     filterControl.frequency.setLastValue(newFilterFrequence);
-    filter.setFloat("frequency_value", newFilterFrequence/maxFilterFrequency);
+    filter.setFloat("frequency_value", map(newFilterFrequence, minFilterFrequency, maxFilterFrequency, 0, 1));
   }
   
   
