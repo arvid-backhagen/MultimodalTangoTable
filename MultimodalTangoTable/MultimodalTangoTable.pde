@@ -1,4 +1,4 @@
-/* //<>// //<>// //<>//
+/* //<>// //<>// //<>// //<>//
  TUIO 1.1 Demo for Processing
  Copyright (c) 2005-2014 Martin Kaltenbrunner <martin@tuio.org>
 
@@ -57,6 +57,9 @@ float flangerAngle;
 float echoAngle;
 float bpmY;
 
+// Arrays for keeping track of keys pressed
+boolean [] arrows = new boolean [4];
+String currentEffect = "volume";
 
 // --------------------------------------------------------------
 // Processing functions
@@ -64,11 +67,10 @@ float bpmY;
 void setup()
 {
   // GUI setup
-  //size(800, 1000, P3D);
-  fullScreen();
+  size(800, 1000, P3D);
+  //fullScreen();
   font = createFont("Arial", 12);
   textFont(font);
-  noCursor();
   noStroke();
   fill(0);
   
@@ -97,7 +99,12 @@ void draw()
   if (frameCount % 3 == 0) {
     thread("sendMessageToClients");
   }
-   
+  
+  //for keyboard controls
+  if (frameCount % 3 == 0) {
+    update();
+  }
+  
   ArrayList<TuioObject> tuioObjectList = tuioClient.getTuioObjectList();
   for (int i=0;i<tuioObjectList.size();i++) {
      TuioObject tobj = tuioObjectList.get(i);
@@ -124,8 +131,7 @@ void draw()
      popMatrix();
      text(""+tobj.getSymbolID(), tobj.getScreenX(width), tobj.getScreenY(height));
   }
-  
-  
+    
   text("Server running", 10, 20);
   
   player1String = player1.toJsonString();
@@ -311,94 +317,93 @@ void webSocketServerEvent(String msg) {
   }
 }
 
-
-
-
 // --------------------------------------------------------------
 // Keyboard functions(not needed, only used to debug)
 // --------------------------------------------------------------
-void keyPressed() {
-  //Toggle play/pause
-  if ( key == ' ' ) {
-    player1.togglePlay();
-  }
-  
-  
+void update(){
   //Volume
-  if (key == 'q') {
-    player1.resetVolume();
-  }
-  
-  if (key == 'a') {
-    player1.increaseVolume();
-  }
-  
-  if (key == 'z') {
-    player1.decreaseVolume();
-  }
-  
-  
+  if (currentEffect == "volume" && arrows[1]) player1.increaseVolume();
+  else if (currentEffect == "volume" && arrows[2]) player1.decreaseVolume();
+
   //Bpm
-  if (key == 'w') {
-    player1.resetBpm();
-  }
-  
-  if (key == 's') {
-    player1.increaseBpm();
-  }
-  
-  if (key == 'x') {
-    player1.decreaseBpm();
-  }
-  
+  if (currentEffect == "bpm" && arrows[1]) player1.increaseBpm();
+  else if (currentEffect == "bpm" && arrows[2]) player1.decreaseBpm(); 
   
   //Echo
-  if (key == 'e') {
-    player1.toggleEcho();
-  }
-  
-  if (key == 'd') {
-    player1.increaseEcho();
-  }
-  
-  if (key == 'c') {
-    player1.decreaseEcho();
-  }
-  
-  
+  if (currentEffect == "echo" && arrows[1]) player1.increaseEcho();
+  else if (currentEffect == "echo" && arrows[2]) player1.decreaseEcho();
+
   //Filter
-  if (key == 'r') {
-    player1.toggleFilter();
-  }
-  
-  if (key == 'f') {
-    player1.increaseFilter();
-  }
-  
-  if (key == 'v') {
-    player1.decreaseFilter();
-  }
-  
+  if (currentEffect == "filter" && arrows[1]) player1.increaseFilter();
+  else if (currentEffect == "filter" && arrows[2]) player1.decreaseFilter();
   
   //Flanger
-  if (key == 't') {
-    player1.toggleFlanger();
+  if (currentEffect == "flanger" && arrows[1]) player1.increaseFlangeRate();
+  else if (currentEffect == "flanger" && arrows[2]) player1.decreaseFlangeRate();
+  if (currentEffect == "flanger" && arrows[3]) player1.increaseFlangeDepth();
+  else if (currentEffect == "flanger" && arrows[0]) player1.decreaseFlangeDepth();
+}
+
+void keyPressed(){ 
+  if (key != CODED){    
+    //Play/pause
+    if (key == ' ') {
+      player1.togglePlay();
+    }
+    //Volume
+    if (key == 'v'){
+      currentEffect = "volume";
+    }
+    //Bpm
+    if (key == 't'){
+      player1.resetBpm();
+      currentEffect = "bpm";
+    }
+    //Echo
+    if (key == 'e') {
+      player1.toggleEcho();
+      currentEffect = "echo";
+    }
+    //Filter
+    if (key == 'd'){
+      player1.toggleFilter();
+      currentEffect = "filter";
+    }
+    //Flanger
+    if (key == 'f'){ 
+      player1.toggleFlanger();
+      currentEffect = "flanger";
+    }
   }
-  
-  if (key == 'g') {
-    player1.increaseFlangeRate();
+  if (key == CODED){
+    if (keyCode == LEFT) {
+      arrows[0] = true;
+    }
+    if (keyCode == UP) {
+      arrows[1] = true;
+    }
+    if (keyCode == DOWN) {
+      arrows[2] = true;
+    }
+    if (keyCode == RIGHT) {
+      arrows[3] = true;
+    }
   }
-  
-  if (key == 'b') {
-    player1.decreaseFlangeRate();
+}
+
+void keyReleased(){  
+  if (key == CODED){
+    if (keyCode == LEFT) {
+      arrows[0] = false;
+    }
+    if (keyCode == UP) {
+      arrows[1] = false;
+    }
+    if (keyCode == DOWN) {
+      arrows[2] = false;
+    }
+    if (keyCode == RIGHT) {
+      arrows[3] = false;
+    }
   }
-  
-  if (key == 'h') {
-    player1.increaseFlangeDepth();
-  }
-  
-  if (key == 'n') {
-    player1.decreaseFlangeDepth();
-  }
-  
 }
