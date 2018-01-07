@@ -224,6 +224,19 @@ class Player {
     gainControl.setValue(newVal);
     song.setFloat("volume", 1 - newVal/minGain);
   }
+  void increaseVolume() {
+    float newVol = min(gainControl.gain.getLastValue() + deltaGain, maxGain);
+    gainControl.gain.setLastValue(newVol);
+    gainControl.setValue(newVol);
+    song.setFloat("volume", newVol);
+  }
+  
+  void decreaseVolume() {
+    float newVol = max(gainControl.gain.getLastValue() - deltaGain, minGain);
+    gainControl.gain.setLastValue(newVol);
+    gainControl.setValue(newVol);
+    song.setFloat("volume", newVol);
+  }
    
   //Bpm
   void resetBpm() {
@@ -290,23 +303,33 @@ class Player {
     flangeControl.depth.setLastValue(newVal);
     flange.setFloat("depth_value", newVal);
   }
-  void increaseFlangeRate() { // Angle adjusted
+  void increaseFlangeRate() { 
     float newFlangeRate = min(flangeControl.rate.getLastValue() + stepFlangeRate, maxFlangeRate);
     flangeControl.rate.setLastValue(newFlangeRate);
     flange.setFloat("rate_value", newFlangeRate);
   }
   
-  void decreaseFlangeRate() { // Angle
+  void decreaseFlangeRate() { 
     float newFlangeRate = max(flangeControl.rate.getLastValue() - stepFlangeRate, minFlangeRate);
     flangeControl.rate.setLastValue(newFlangeRate);
     flange.setFloat("rate_value", newFlangeRate);
+  }
+  void increaseFlangeDepth() {
+    float newFlangeDepth = min(flangeControl.depth.getLastValue() + stepFlangeDepth, maxFlangeDepth);
+    flangeControl.depth.setLastValue(newFlangeDepth);
+    flange.setFloat("depth_value", newFlangeDepth);
+  }
+  
+  void decreaseFlangeDepth() {
+    float newFlangeDepth = max(flangeControl.depth.getLastValue() - stepFlangeDepth, minFlangeDepth);
+    flangeControl.depth.setLastValue(newFlangeDepth);
+    flange.setFloat("depth_value", newFlangeDepth);
   }
   
   //Filter
   void toggleFilter() {
     if ( filterBypassControl.isActive() ) {
       filterBypassControl.deactivate();
-      // filterControl.frequency.setLastValue(defaultFilterFrequency); //Comment out this line if we don't want to reset filter when toggling.
     } else {
       filterBypassControl.activate();
     }
@@ -314,7 +337,7 @@ class Player {
     filter.setBoolean("active", !filterBypassControl.isActive());
   }
   
-  void setFilter(float xValue){ // value of fiducial x-axis
+  void setFilter(float xValue){
     if (xValue < 0){
       xValue = 0;
     }
@@ -326,6 +349,17 @@ class Player {
     filter.setFloat("frequency_value", newVal);
   }
   
+  void increaseFilter() {
+    float newFreq = min(filterControl.frequency.getLastValue() + deltaFilterFrequency, maxFilterFrequency);
+    filterControl.frequency.setLastValue(newFreq);
+    flange.setFloat("frequency_value", newFreq);
+  }
+  
+  void decreaseFilter() {
+    float newFreq = max(filterControl.frequency.getLastValue() - deltaFilterFrequency, minFilterFrequency);
+    filterControl.frequency.setLastValue(newFreq);
+    flange.setFloat("frequency_value", newFreq);
+  }
   //To string
   String toJsonString() {
     //Song info
