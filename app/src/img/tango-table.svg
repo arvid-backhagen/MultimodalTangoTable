@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="198px" height="170px" viewBox="0 0 198 170" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>table</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="100%" y1="15.8278187%" x2="0%" y2="86.0010692%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#EEF3F8" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="0%" y1="17.2606907%" x2="100%" y2="85.6426723%" id="linearGradient-2">
+            <stop stop-color="#EEF3F8" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="74.8549543%" y1="24.4156148%" x2="29.7567288%" y2="79.662607%" id="linearGradient-3">
+            <stop stop-color="#C0E1FC" offset="0%"></stop>
+            <stop stop-color="#D2EBFC" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="table">
+            <polygon id="Path-2" fill="url(#linearGradient-1)" points="198 113 198 56.5 99 113 99 169.5"></polygon>
+            <polygon id="Path-3" fill="url(#linearGradient-2)" points="-3.14702938e-05 56.5 99 113 99 169.5 7.47904343e-14 113"></polygon>
+            <polygon id="Path" fill="url(#linearGradient-3)" points="99 113 0 56.5 99 0 198 56.5"></polygon>
+        </g>
+    </g>
+</svg>

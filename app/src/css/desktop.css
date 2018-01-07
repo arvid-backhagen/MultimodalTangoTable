@@ -8,7 +8,7 @@
   height: 100%;
 
   background: #FFDDE4; /* fallback for old browsers */
-  background: linear-gradient(to right, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
   overflow: hidden;
 }
@@ -45,7 +45,7 @@
       width: 100%;
       height: 100%;
 
-      background: linear-gradient(to right, #FFF2F5, #FFDDE4);
+      background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4);
       opacity: 0.95;
     }
 
@@ -80,7 +80,7 @@
         #desktop main #waveform .spec {
           width: 10px;
 
-          margin: -5px;
+          margin-bottom: -5px;
           border-radius: 5px 5px 0 0;
           transition: height 150ms ease-out;
         }
@@ -342,7 +342,7 @@
           height: 140px;
           border-radius: 140px;
           background: #FFDDE4; /* fallback for old browsers */
-          background: linear-gradient(to right, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+          background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
           box-shadow: 0px 0px 20px 0px rgba(246, 176, 191, 0.5);
           overflow: hidden;
 
@@ -381,6 +381,7 @@
         #desktop footer .flex-container .flex-content .time-stamp.end {
           right: 30px;
           text-align: right;
+          color: #C2C8D1;
         }
 
 

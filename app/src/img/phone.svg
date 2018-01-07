@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="120.710678%" y1="50%" x2="-20.7106781%" y2="50%" id="linearGradient-1">
+            <stop stop-color="#F3F8FB" offset="0%"></stop>
+            <stop stop-color="#E5EBF2" offset="100%"></stop>
+        </linearGradient>
+        <path d="M38.4446763,2.50947715 C40.3585237,1.41624143 43.4635018,1.41677502 45.3805948,2.51110043 L60.0405172,10.8793567 C61.9572718,11.973489 61.9476987,13.7298379 60.014182,14.8050263 L24.4969264,34.5554321 C22.5656273,35.6293873 19.4387434,35.6056231 17.5322771,34.5134904 L3.46772289,26.4565108 C1.55255242,25.3593919 1.55384464,23.5824078 3.46532738,22.4905228 L38.4446763,2.50947715 Z" id="path-2"></path>
+        <filter x="-12.6%" y="-16.7%" width="128.3%" height="150.0%" filterUnits="objectBoundingBox" id="filter-3">
+            <feOffset dx="1" dy="3" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.392156863   0 0 0 0 0.647058824   0 0 0 0 0.764705882  0 0 0 0.487856658 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+        <filter x="-8.7%" y="-9.7%" width="120.5%" height="136.1%" filterUnits="objectBoundingBox" id="filter-4">
+            <feGaussianBlur stdDeviation="1" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="1" dy="-1" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.568627451   0 0 0 0 0.62745098   0 0 0 0 0.705882353  0 0 0 0.2 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard">
+            <g id="phone" transform="translate(8.000000, 22.000000)">
+                <g id="Rectangle">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" fill-rule="evenodd" xlink:href="#path-2"></use>
+                    <use fill="black" fill-opacity="1" filter="url(#filter-4)" xlink:href="#path-2"></use>
+                </g>
+                <path d="M47.6277466,6.6029447 C47.7526179,6.54608991 47.9588078,6.5570103 48.0821378,6.6239974 L51.8717082,8.68231553 C51.9977902,8.7507974 52.0033099,8.85033657 51.8739003,8.90925763 L51.9722533,8.86447684 C51.847382,8.92133163 51.6411921,8.91041124 51.5178621,8.84342414 L47.7282917,6.78510601 C47.6022097,6.71662413 47.59669,6.61708497 47.7260996,6.5581639 L47.6277466,6.6029447 Z" id="Rectangle-3" fill="#E4EAF1"></path>
+                <path d="M37.6619646,4.23303064 C38.1377205,3.96074037 38.9054028,3.95818218 39.3948022,4.23769492 L56.7758336,14.1645963 C57.2570975,14.4394626 57.2614153,14.8727089 56.7652192,15.1433276 L26.1808029,31.8236618 C25.6936768,32.0893339 24.915125,32.0857558 24.437456,31.8131573 L7.79132741,22.3134618 C7.31562959,22.0419882 7.31805938,21.5998168 7.79143249,21.3288902 L37.6619646,4.23303064 Z" id="Rectangle-2" fill="#F6B0BF"></path>
+                <path d="M12.5311916,29 C13.1636275,29 14.1100684,28.5522847 14.6451265,28 C15.1801846,27.4477153 15.1012443,27 14.4688084,27 C13.8363725,27 12.8899316,27.4477153 12.3548735,28 C11.8198154,28.5522847 11.8987557,29 12.5311916,29 Z" id="Oval" fill="#DDE3EB"></path>
+            </g>
+        </g>
+    </g>
+</svg>

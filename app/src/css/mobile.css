@@ -1,5 +1,462 @@
 /*  General
 ================================================== */
 #mobile {
-  background: #222;
+	width: 100%;
+	height: 100%;
+
+  background: #FFDDE4; /* fallback for old browsers */
+  background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
+
+
+  #mobile main {
+  	position: relative;
+
+  	margin: 0 auto;
+  	width: 100%;
+  	height: 100%;
+  	max-width: 500px;
+  	overflow: hidden;
+  }
+
+	  #mobile main .view {
+	  	position: absolute;
+	  	top: 0;
+	  	left: 0;
+
+	  	width: 100%;
+	  	height: 100%;
+	  	z-index: 1;
+	  }
+
+		  #mobile main .view .circle {
+		    position: absolute;
+		     z-index: 1;
+
+		    border-radius: 300px;
+		    border: 50px solid #F6B0BF;
+		  }
+
+		  #mobile main .view .circle.left {
+		  	left: 0;
+		  	top: 0;
+		  	transform: translate(-50%, -50%);
+
+		  	width: 250px;
+		  	height: 250px;
+		  }
+
+		  #mobile main .view .circle.right {
+		  	top: 155px;
+		  	right: 0;
+		  	transform: translateX(50%);
+
+		  	width: 120px;
+		  	height: 120px;
+		  }
+
+
+
+	  #mobile main #welcome {
+	  }
+
+		  #mobile main #welcome .cover-bg {
+		    position: absolute;
+		    top: 0;
+		    left: 0;
+
+		    width: 100%;
+		    height: 100%;
+
+		  	background: url('../img/large/daft-punk.jpg');
+		    background-size: cover;
+		    background-position: center;
+		  }
+
+			  #mobile main #welcome .cover-bg:before {
+		      content: "";
+
+		      position: absolute;
+		      top: 0;
+		      left: 0;
+		      z-index: 1;
+
+		      width: 100%;
+		      height: 100%;
+
+		      background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4);
+		      opacity: 0.90;
+			  }
+
+			  #mobile main #welcome .cover-bg:after {
+		      content: "";
+
+		      position: absolute;
+		      top: 0;
+		      left: 0;
+		      z-index: 1;
+
+		      width: 100%;
+		      height: 100%;
+
+		      background: linear-gradient(to bottom, rgba(231, 125, 149, 0), rgba(231, 125, 149, 1));
+		      opacity: 0.50;
+			  }
+
+
+		  #mobile main #welcome .content {
+		  	position: absolute;
+		  	bottom: 100px;
+		  	padding: 0 30px;
+		  	z-index: 2;
+
+		  	text-align: center;
+		  }
+
+			  #mobile main #welcome .content h3 {
+			  	margin-bottom: 20px;
+			  	color: #fff;
+			  }
+
+			  #mobile main #welcome .content p {
+			  	margin-bottom: 20px;
+			  	color: #fff;
+			  }
+
+			  #mobile main #welcome .content a {
+			  	margin: 0 auto;
+			  	background: #FFF;
+			  	color: #F6B0BF;
+			  }
+
+
+
+	  #mobile main #library {
+	  	background: #F7F9FA;
+
+			display: flex;
+			flex-direction: column;
+	  }
+
+		  #mobile main #library header {
+		  	padding: 50px 20px 20px;
+		  }
+
+		  #mobile main #library header p {
+		  	margin-top: 10px;
+		  }
+
+		  #mobile main #library .track-group {
+		  	padding: 0px 20px 0px;
+		  	overflow-y: scroll;
+ 			  -webkit-overflow-scrolling: touch;
+		  }
+
+			  #mobile main #library .track-group .track {
+			  	margin-bottom: 20px;
+
+			  	display: flex;
+    			align-items: center;
+
+			  	background: #fff;
+			  	border-radius: 6px;
+			  	padding: 15px;
+
+				  box-shadow: 0 5px 20px 0px rgba(246, 176, 191, 0.15);
+			  }
+
+				  #mobile main #library .track-group .track .cover {
+				  	width: 60px;
+				  	height: 60px;
+				  	border-radius: 5px;
+				  	overflow: hidden;
+				  }
+
+				  #mobile main #library .track-group .track .cover img {
+				  	display: block;
+				  	width: 100%;
+				  }
+
+				  #mobile main #library .track-group .track .info {
+				  	margin-left: 15px;
+				  	flex: 1;
+				  }
+
+					  #mobile main #library .track-group .track .info h5 {
+					  	color: #4A4A57;
+					  	font-weight: 700;
+					  }
+
+					  #mobile main #library .track-group .track .info p {
+					  	margin-top: 5px;
+					  	line-height: 1em;
+					  }
+
+
+
+	  #mobile main #waiting {
+	  	background: #F7F9FA;
+
+			display: flex;
+    	align-items: center;
+			flex-direction: column;
+	  }
+
+		  #mobile main #waiting .cover {
+		  	width: 100%;
+		  	height: 285px;
+
+  			background: #FFDDE4; /* fallback for old browsers */
+  			background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+		  }
+
+		  #mobile main #waiting .illustration {
+		  	display: flex;
+    		justify-content: center;
+    		align-items: center;
+
+    		position: relative;
+    		z-index: 1;
+
+		  	position: absolute;
+		  	top: 100px;
+		  	z-index: 1;
+
+		  	width: 250px;
+		  	height: 250px;
+		  	border-radius: 125px;
+
+  			background: #E77D95; /* fallback for old browsers */
+  			background: linear-gradient(to -45deg, #FFDDE4, #E77D95); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  			box-shadow: 0 0 50px 0 rgba(246, 176, 191, 0.5);
+		  }
+
+
+				@keyframes phone-movement {
+				  0%   { transform: translate3d(-15px, -20px, 0); }
+				  50%   { transform: translate3d(25px, -40px, 0); }
+				  100% { transform: translate3d(-15px, -20px, 0); }
+				}
+
+			  #mobile main #waiting .illustration .phone {
+			  	position: absolute;
+  				animation: phone-movement 5s infinite; /* IE 10+, Fx 29+ */
+			  }
+
+		  #mobile main #waiting .content {
+		  	position: relative;
+		  	z-index: 1;
+
+		  	display: flex;
+		  	flex-direction: column;
+		  	justify-content: center;
+
+		  	flex: 1;
+		  	background: #fff;
+
+		  	text-align: center;
+		  }
+
+			  #mobile main #waiting .content:before {
+			  	content:"";
+
+			  	position: absolute;
+			  	left: 0;
+			  	top: 0;
+
+			    width: 100%;
+			    padding-bottom: 16%;
+			    transform: translateY(-100%);
+
+			    background: url(/static/media/content-triangle.6cfe554a.svg);
+			    background-size: cover;
+			  }
+
+			  #mobile main #waiting .content .info {
+			  	padding: 0px 30px;
+			  }
+
+				  #mobile main #waiting .content .info p {
+				  	margin-top: 20px;
+				  }
+
+
+
+	  #mobile main #music-player {
+	  	background: #F7F9FA;
+
+			display: flex;
+    	align-items: center;
+			flex-direction: column;
+	  }
+
+		  #mobile main #music-player .cover {
+		  	width: 100%;
+		  	height: 285px;
+
+	      display: flex;
+	      align-items: flex-end;
+	      justify-content: center;
+
+  			background: #FFDDE4; /* fallback for old browsers */
+  			background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+		  }
+
+		    #mobile main #music-player .cover #waveform {
+		      display: flex;
+		      align-items: flex-end;
+		    }
+
+		      #mobile main #music-player .cover #waveform .spec-container {
+		        margin: 0 10px;
+		      }
+
+		        #mobile main #music-player .cover #waveform .spec {
+		          width: 6px;
+		          height: 50px;
+
+		          margin-bottom: -3px;
+		          border-radius: 3px 3px 0 0;
+		          transition: height 150ms ease-out;
+		        }
+
+		        #mobile main #music-player .cover #waveform .spec.low {
+		          background: #E77D95;
+		        }
+
+		        #mobile main #music-player .cover #waveform .spec.middle {
+		          background: #F0A2B3;
+		        }
+
+		        #mobile main #music-player .cover #waveform .spec.high {
+		          background: #F9C8D2;
+		        }
+
+		  #mobile main #music-player .illustration {
+		  	display: flex;
+    		justify-content: center;
+    		align-items: center;
+
+    		position: relative;
+    		z-index: 1;
+
+		  	position: absolute;
+		  	top: 100px;
+		  	z-index: 1;
+
+		  	width: 250px;
+		  	height: 250px;
+		  	border-radius: 125px;
+
+  			background: #E77D95; /* fallback for old browsers */
+  			background: linear-gradient(to -45deg, #FFDDE4, #E77D95); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  			box-shadow: 0 0 50px 0 rgba(246, 176, 191, 0.5);
+
+  			overflow: hidden;
+		  }
+
+
+				@keyframes phone-movement {
+				  0%   { transform: translate3d(-15px, -20px, 0); }
+				  50%   { transform: translate3d(25px, -40px, 0); }
+				  100% { transform: translate3d(-15px, -20px, 0); }
+				}
+
+			  #mobile main #music-player .illustration img {
+			  	display: block;
+			  	width: 100%;
+			  }
+
+		  #mobile main #music-player .content {
+		  	position: relative;
+		  	z-index: 1;
+
+		  	display: flex;
+		  	flex-direction: column;
+		  	justify-content: center;
+    		align-items: center;
+
+		  	flex: 1;
+		  	width: 100%;
+		  	background: #fff;
+		  	padding-top: 30px;
+
+		  	text-align: center;
+		  }
+
+			  #mobile main #music-player .content:before {
+			  	content:"";
+
+			  	position: absolute;
+			  	left: 0;
+			  	top: 0;
+
+			    width: 100%;
+			    padding-bottom: 16%;
+			    transform: translateY(-100%);
+
+			    background: url(/static/media/content-triangle.6cfe554a.svg);
+			    background-size: cover;
+			  }
+
+			  #mobile main #music-player .content .info {
+			  	padding: 0px 30px;
+			  	display: flex;
+			  	flex-direction: column;
+			  	align-items: center;
+			  }
+
+				  #mobile main #music-player .content .info h4 {
+				  	margin-top: 15px;
+				  }
+
+				  #mobile main #music-player .content .info a {
+				  	margin-top: 25px;
+				  }
+
+
+        #mobile main #music-player .content h5 {
+        	margin-top: 30px;
+        	color: #C2C8D1;
+        }
+
+
+        #mobile main #music-player .content .time-stamp {
+          position: absolute;
+          bottom: 20px;
+
+          letter-spacing: 2.5px;
+        }
+
+        #mobile main #music-player .content .time-stamp.current {
+          left: 20px;
+          color: #E77D95;
+        }
+
+        #mobile main #music-player .content .time-stamp.end {
+          right: 20px;
+          text-align: right;
+        }
+
+	      #mobile main #music-player .content .progress-bar {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+
+	        width: 100%;
+	        height: 6px;
+
+	        background: #F6B0BF;
+	      }
+
+	        #mobile main #music-player .content .progress-fill {
+	          width: 0;
+	          height: 100%;
+
+	          background: #E77D95;
+	          border-radius: 0px 5px 5px 0px;
+
+	          transform: translate3d(0, 0, 0);
+	          transition: width 150ms ease-out;
+	        }
+
