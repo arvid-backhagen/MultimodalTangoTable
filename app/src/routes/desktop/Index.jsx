@@ -64,7 +64,7 @@ class Desktop extends Component {
       
       ws.onmessage = function(evt) {
         let { activeTrackID, currentEffect, input } = this.state;
-        let { id, length, position, playing, current_effect, filter, echo, flange, bpm, volume, waveform } = JSON.parse(evt.data);
+        let { id, length, position, playing, current_effect, fiducial, filter, echo, flange, bpm, volume, waveform } = JSON.parse(evt.data);
 
         if (activeTrackID !== id) {
           this.setState({ activeTrackID : id });
@@ -75,14 +75,30 @@ class Desktop extends Component {
           this.setState({ currentEffect : current_effect });
         }
 
+        this.phoneFiducial.style.top = `${ fiducial.y *100 }%`;
+        this.phoneFiducial.style.left = `${ fiducial.x *100 }%`;
+
+        this.bpmFiducial.style.top = `${ bpm.fiducial.y *100 }%`;
+        this.bpmFiducial.style.left = `${ bpm.fiducial.x *100 }%`;
+
+        this.echoFiducial.style.top = `${ echo.fiducial.y *100 }%`;
+        this.echoFiducial.style.left = `${ echo.fiducial.x *100 }%`;
+
+        this.filterFiducial.style.top = `${ filter.fiducial.y *100 }%`;
+        this.filterFiducial.style.left = `${ filter.fiducial.x *100 }%`;
+
+        this.flangerFiducial.style.top = `${ flange.fiducial.y *100 }%`;
+        this.flangerFiducial.style.left = `${ flange.fiducial.x *100 }%`;
+
+
         this.phoneFiducial.dataset.active = !!playing;
         this.bpmFiducial.dataset.active = !!bpm.active;
         this.echoFiducial.dataset.active = !!echo.active;
         this.filterFiducial.dataset.active = !!filter.active;
         this.flangerFiducial.dataset.active = !!flange.active;
 
-        this.volumeBar.style.height = `${ volume * 100 }%`;
 
+        this.volumeBar.style.height = `${ volume * 100 }%`;
         this.bpmBar.style.strokeDasharray = `${ bpm.tempo * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.filterBar.style.strokeDasharray = `${ filter.frequency_value * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.echoBar.style.strokeDasharray = `${ echo.delay_value * LARGE_BAR_DASH_WIDTH }, 502.65`;

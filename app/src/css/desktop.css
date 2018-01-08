@@ -204,7 +204,7 @@
       border-radius: 95px;
       box-shadow: 0px 0px 50px 0px rgba(246, 176, 191, 0.5);
 
-      transition: opacity 250ms ease-out, transform 250ms ease-out;
+      transition: opacity 250ms ease-out, transform 250ms ease-out, top 250ms ease-out, left 250ms ease-out;
     }
 
     #desktop main .fiducial[data-active="true"] {
@@ -267,21 +267,29 @@
         }
 
 
-
-    #desktop main #bpm {
-      left: 30%;
+    #desktop[data-input="keyboard"] main #mobile {
+      left: 10%!important;
+      top: 50%!important;
     }
 
-    #desktop main #echo {
-      left: 50%;
+    #desktop[data-input="keyboard"] main #bpm {
+      top: 50%!important;
+      left: 30%!important;
     }
 
-    #desktop main #low-pass {
-      left: 70%;
+    #desktop[data-input="keyboard"] main #echo {
+      top: 50%!important;
+      left: 50%!important;
     }
 
-    #desktop main #flanger {
-      left: 90%;
+    #desktop[data-input="keyboard"] main #low-pass {
+      top: 50%!important;
+      left: 70%!important;
+    }
+
+    #desktop[data-input="keyboard"] main #flanger {
+      top: 50%!important;
+      left: 90%!important;
     }
 
       #desktop main #flanger #flanger-rate-fiducial {
