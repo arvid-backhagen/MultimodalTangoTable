@@ -37,6 +37,13 @@ WebsocketServer ws;
 int serverPort = 1234;
 
 
+final int songFiducial = 12;
+final int bpmFiducial = 13;
+final int echoFiducial = 14;
+final int filterFiducial = 15;
+final int flangerFiducial = 16;
+
+
 // Player stuff
 Player player1;
 String player1String;
@@ -113,15 +120,15 @@ void draw()
      rotate(tobj.getAngle());
      
      // set image of tuio objects
-     if (tobj.getSymbolID() == 3){
+     if (tobj.getSymbolID() == flangerFiducial){
        image(flangeimg, -object_size, -object_size, 2*object_size, 2*object_size);
-     } else if (tobj.getSymbolID() == 2){
+     } else if (tobj.getSymbolID() == filterFiducial){
        image(lpfimg, -object_size, -object_size, 2*object_size, 2*object_size);
-     } else if (tobj.getSymbolID() == 4){
+     } else if (tobj.getSymbolID() == echoFiducial){
        image(echoimg, -object_size, -object_size, 2*object_size, 2*object_size);
-     } else if (tobj.getSymbolID() == 50){
+     } else if (tobj.getSymbolID() == songFiducial){
        image(songimg, -object_size, -object_size, 2*object_size, 2*object_size);
-     } else if (tobj.getSymbolID() == 5){
+     } else if (tobj.getSymbolID() == bpmFiducial){
        image(bpmimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else {
        rect(-object_size/2,-object_size/2,object_size,object_size);
@@ -147,23 +154,27 @@ void draw()
 // called when an object is added to the scene
 void addTuioObject(TuioObject tobj) {
   // Player1 toggle
-  if (tobj.getSymbolID() == 50){
+  if (tobj.getSymbolID() == songFiducial){
     player1.play();
   }
+  
   // Toggle filter
-  if (tobj.getSymbolID() == 2){
+  if (tobj.getSymbolID() == filterFiducial){
     player1.toggleFilter();
   }
+  
   // Toggle flanger
-  if (tobj.getSymbolID() == 3){
+  if (tobj.getSymbolID() == flangerFiducial){
     player1.toggleFlanger();
   }
+  
   // Toggle echo
-  if (tobj.getSymbolID() == 4){
+  if (tobj.getSymbolID() == echoFiducial){
     player1.toggleEcho();
   }
+  
   // Reset BPM
-  if (tobj.getSymbolID() == 6){
+  if (tobj.getSymbolID() == bpmFiducial){
     player1.toggleBpm();
   }
   
@@ -175,21 +186,21 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject (TuioObject tobj) {
   if (verbose) println("set obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+") "+tobj.getX()+" "+tobj.getY()+" "+tobj.getAngle()
           +" "+tobj.getMotionSpeed()+" "+tobj.getRotationSpeed()+" "+tobj.getMotionAccel()+" "+tobj.getRotationAccel());
-  
+
   // Volume control
-  if (tobj.getSymbolID() == 50){
+  if (tobj.getSymbolID() == songFiducial){
     float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
     player1.setVolume(inverseY);
   }
   
   // Filter control
-  if (tobj.getSymbolID() == 2){
+  if (tobj.getSymbolID() == filterFiducial){
     float mapVal = map(tobj.getX(), 0.05, 0.95, 0, 1);
     player1.setFilter(mapVal);
   }
   
   // Flanger control
-  if (tobj.getSymbolID() == 3){
+  if (tobj.getSymbolID() == flangerFiducial){
     float mapVal = map(tobj.getY(), 0.05, 0.90, 1, 0);
     player1.setFlangeDepth(mapVal);
     
@@ -202,7 +213,7 @@ void updateTuioObject (TuioObject tobj) {
   }
   
   // Echo control
-  if (tobj.getSymbolID() == 4){
+  if (tobj.getSymbolID() == echoFiducial){
     if(echoAngle < tobj.getAngle()){
       player1.increaseEcho();
     } else if (echoAngle > tobj.getAngle()){
@@ -212,7 +223,7 @@ void updateTuioObject (TuioObject tobj) {
   }
   
   //BPM control
-  if (tobj.getSymbolID() == 6){
+  if (tobj.getSymbolID() == bpmFiducial){
     float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
     if(bpmY < inverseY){
       player1.increaseBpm();
@@ -225,20 +236,24 @@ void updateTuioObject (TuioObject tobj) {
 
 // called when an object is removed from the scene
 void removeTuioObject(TuioObject tobj) {
-  if (tobj.getSymbolID() == 50){
+  if (tobj.getSymbolID() == songFiducial){
     player1.pause();
   }
-  if (tobj.getSymbolID() == 2){
+  
+  if (tobj.getSymbolID() == filterFiducial){
     player1.toggleFilter();
   }
-  if (tobj.getSymbolID() == 3){
+  
+  if (tobj.getSymbolID() == flangerFiducial){
     player1.toggleFlanger();
   }
-  if (tobj.getSymbolID() == 4){
+  
+  if (tobj.getSymbolID() == echoFiducial){
     player1.toggleEcho();
   }
+  
   // Reset BPM
-  if (tobj.getSymbolID() == 6){
+  if (tobj.getSymbolID() == bpmFiducial){
     player1.toggleBpm();
   }
   
