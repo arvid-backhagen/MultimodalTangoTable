@@ -1,1 +1,1 @@
-export const WS_SERVER = "ws://localhost:1234"
+export const WS_SERVER = "ws://130.229.138.236:1234"

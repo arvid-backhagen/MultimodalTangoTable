@@ -129,12 +129,12 @@ class Mobile extends Component {
 
     console.log(this.musicPlayer.scrollTop);
 
-    this.trackCover.style.top = `${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 100, 75) }px`;
+    this.trackCover.style.transform = `translate3d(-50%, ${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 0, -25) }px, 0)`;
     this.trackCover.style.width = `${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 250, 100) }px`;
     this.trackCover.style.height = `${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 250, 100) }px`;
 
 
-    this.tiltedTriangle.style.transform = `rotate(${ this.interpolate(this.musicPlayer.scrollTop, 90, 160, 0, 16) }deg) translateY(-100%)`;
+    this.tiltedTriangle.style.transform = `rotate(${ this.interpolate(this.musicPlayer.scrollTop, 90, 160, 0, 16) }deg)`;
 
     this.fixedHeader.style.opacity = `${ this.interpolate(this.musicPlayer.scrollTop, 125, 155, 0, 1) }`;
 
@@ -246,7 +246,7 @@ class Mobile extends Component {
   }
 
   handleChangeSongClick() {
-    this.scrollToY(this.musicPlayer.clientHeight - this.fixedHeader.clientHeight, 2000, 'easeOutSine');
+    this.scrollToY(this.musicPlayer.clientHeight - this.fixedHeader.clientHeight + 10, 2000, 'easeOutSine');
   }
 
   render() {
@@ -350,7 +350,7 @@ class Mobile extends Component {
 
             <div className="content">
               <div className="player-container">
-                <span ref={ (triangle) => { this.tiltedTriangle = triangle; } } className="triangle"></span>
+                <span className="triangle-container"><span ref={ (triangle) => { this.tiltedTriangle = triangle; } } class="triangle"></span></span>
 
                 <div className="info">
                   <h1>{ activeTrack.name }</h1>
@@ -376,7 +376,7 @@ class Mobile extends Component {
             </div>
 
             <header ref={ (header) => { this.fixedHeader = header; } } >
-              <a className="scroll-top" onClick={ this.scrollToY.bind(this, 0, 2000, 'easeOutSine') }>
+              <a className="scroll-top" onClick={ this.scrollToY.bind(this, 0, 4000, 'easeOutSine') }>
                 <img src={ rightArrow } />
               </a>
 
