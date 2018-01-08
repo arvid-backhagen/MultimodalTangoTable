@@ -191,12 +191,16 @@ void updateTuioObject (TuioObject tobj) {
   if (tobj.getSymbolID() == songFiducial){
     float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
     player1.setVolume(inverseY);
+    player1.songFiducial.setFloat("x", tobj.getX());
+    player1.songFiducial.setFloat("y", tobj.getY());
   }
   
   // Filter control
   if (tobj.getSymbolID() == filterFiducial){
     float mapVal = map(tobj.getX(), 0.05, 0.95, 0, 1);
     player1.setFilter(mapVal);
+    player1.filterFiducial.setFloat("x", tobj.getX());
+    player1.filterFiducial.setFloat("y", tobj.getY());
   }
   
   // Flanger control
@@ -210,6 +214,8 @@ void updateTuioObject (TuioObject tobj) {
       player1.decreaseFlangeRate();
     }
     flangerAngle = tobj.getAngle();
+    player1.flangeFiducial.setFloat("x", tobj.getX());
+    player1.flangeFiducial.setFloat("y", tobj.getY());
   }
   
   // Echo control
@@ -220,6 +226,8 @@ void updateTuioObject (TuioObject tobj) {
       player1.decreaseEcho();
     }
     echoAngle = tobj.getAngle();
+    player1.echoFiducial.setFloat("x", tobj.getX());
+    player1.echoFiducial.setFloat("y", tobj.getY());
   }
   
   //BPM control
@@ -231,6 +239,8 @@ void updateTuioObject (TuioObject tobj) {
       player1.decreaseBpm();
     }
     bpmY = inverseY;
+    player1.bpmFiducial.setFloat("x", tobj.getX());
+    player1.bpmFiducial.setFloat("y", tobj.getY());
   }
 }
 

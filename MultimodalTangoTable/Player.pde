@@ -116,32 +116,32 @@ class Player {
     flangeFiducial = new JSONObject();
     
     //BPM info
-    bpmFiducial.setInt("x", 0);
-    bpmFiducial.setInt("y", 0);
+    bpmFiducial.setFloat("x", 0.0);
+    bpmFiducial.setFloat("y", 0.0);
     bpm.setBoolean("active", rateControlActive);
     bpm.setJSONObject("fiducial", bpmFiducial);
     
     //Filter info
-    filterFiducial.setInt("x", 0);
-    filterFiducial.setInt("y", 0);
+    filterFiducial.setFloat("x", 0.0);
+    filterFiducial.setFloat("y", 0.0);
     filter.setBoolean("active", filterActive);
     filter.setJSONObject("fiducial", filterFiducial);
     
     //Echo info
-    echoFiducial.setInt("x", 0);
-    echoFiducial.setInt("y", 0);
+    echoFiducial.setFloat("x", 0.0);
+    echoFiducial.setFloat("y", 0.0);
     echo.setBoolean("active", delayActive);
     echo.setJSONObject("fiducial", echoFiducial);
     
     //Flange info
-    flangeFiducial.setInt("x", 0);
-    flangeFiducial.setInt("y", 0);
+    flangeFiducial.setFloat("x", 0.0);
+    flangeFiducial.setFloat("y", 0.0);
     flange.setBoolean("active", flangeActive);
     flange.setJSONObject("fiducial", flangeFiducial);
     
     //Song info
-    songFiducial.setInt("x", 0);
-    songFiducial.setInt("y", 0);
+    songFiducial.setFloat("x", 0.0);
+    songFiducial.setFloat("y", 0.0);
     
     song.setInt("id", songIndex);
     song.setBoolean("playing", songActive);
@@ -518,7 +518,7 @@ class Player {
     
     float newVal = (maxFlangeDepth - minFlangeDepth) * yValue + minFlangeDepth;
     flangeControl.depth.setLastValue(newVal);
-    flange.setFloat("depth_value", map(newVal, minFlangeRate, maxFlangeRate, 0, 1));
+    flange.setFloat("depth_value", map(newVal, minFlangeDepth, maxFlangeDepth, 0, 1));
   }
 
   void increaseFlangeRate() { 
