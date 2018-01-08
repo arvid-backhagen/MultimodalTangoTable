@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 
-import daftPunkLarge from '../../img/large/daft-punk.jpg';
+import { WS_SERVER } from '../../data/constants';
 
+import daftPunkLarge from '../../img/large/daft-punk.jpg';
 import daftPunkSmall from '../../img/small/daft-punk.jpg';
 
 import horizontalArrow from '../../img/horizontal-arrow.svg';
@@ -40,12 +41,9 @@ class Desktop extends Component {
 
 
 
-    var wsAdress = "ws://localhost:1234";
-
     var ws = null;
-    
     if('WebSocket' in window) {
-      ws = new WebSocket(wsAdress);
+      ws = new WebSocket(WS_SERVER);
         
       ws.onopen = function() {
         console.log("connection established");
