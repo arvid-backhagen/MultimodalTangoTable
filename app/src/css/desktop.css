@@ -195,7 +195,7 @@
 
       opacity: 0;
       transform: scale(0.875) translate3d(-50%, -50%, 0);
-      transform-origin: top;
+      transform-origin: top left;
       
       width: 190px;
       height: 190px;
@@ -210,6 +210,10 @@
     #desktop main .fiducial[data-active="true"] {
       opacity: 1;
       transform: scale(1) translate3d(-50%, -50%, 0);
+    }
+
+    #desktop[data-input="keyboard"] main .fiducial[data-selected="true"] {
+      transform: scale(1.5) translate3d(-50%, -50%, 0);
     }
 
     #desktop main #mobile {

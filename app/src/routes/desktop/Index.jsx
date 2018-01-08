@@ -21,6 +21,8 @@ class Desktop extends Component {
 
     this.state = {
       activeTrackID : -1,
+      input: 'fiducial',
+      currentEffect: '',
     }
 
     this.specLowList = [];
@@ -29,6 +31,8 @@ class Desktop extends Component {
   }
   
   componentDidMount() {
+    document.body.addEventListener('keydown', this.handleKeyPress.bind(this));
+
     let specList = this.waveform.children    
 
     for (var i = 0; i < specList.length; i++) {
@@ -59,11 +63,16 @@ class Desktop extends Component {
       };
       
       ws.onmessage = function(evt) {
-        let { activeTrackID } = this.state;
-        let { id, length, position, playing, filter, echo, flange, bpm, volume, waveform } = JSON.parse(evt.data);
+        let { activeTrackID, currentEffect, input } = this.state;
+        let { id, length, position, playing, current_effect, filter, echo, flange, bpm, volume, waveform } = JSON.parse(evt.data);
 
         if (activeTrackID !== id) {
           this.setState({ activeTrackID : id });
+        }
+
+        if (input === 'keyboard' && (currentEffect !== current_effect)) {
+          console.log('changed to', current_effect)
+          this.setState({ currentEffect : current_effect });
         }
 
         this.phoneFiducial.dataset.active = !!playing;
@@ -108,8 +117,18 @@ class Desktop extends Component {
     return (seconds > 9) ? `0${ minutes }:${ seconds }` : `0${ minutes }:0${ seconds }`;
   }
 
+  handleKeyPress(event) {
+    if(event.code == 'Space'){
+      let { input } = this.state;
+
+      let newInput = (input === 'fiducial') ? 'keyboard' : 'fiducial';
+
+      this.setState({ input : newInput })
+    }
+  }
+
   render() {
-    let { activeTrackID } = this.state;
+    let { activeTrackID, input, currentEffect } = this.state;
 
 
     let activeTrack = TRACKS[0];
@@ -126,10 +145,66 @@ class Desktop extends Component {
         <div className="low spec"></div>
       </div>
     }
-    
+
+    let echoInteractionIcon = (
+      <figure className="large interaction-icon">
+        <img src={ turnArrow } />
+      </figure>
+    )
+
+    if (input === 'keyboard') {
+      echoInteractionIcon = (
+        <figure className="large interaction-icon">
+          <img src={ verticalArrow } />
+        </figure>
+      )
+    }
+
+    let filterInteractionIcon = (
+      <figure className="large interaction-icon">
+       <img src={ horizontalArrow } />
+      </figure>
+    )
+
+    if (input === 'keyboard') {
+      filterInteractionIcon = (
+        <figure className="large interaction-icon">
+          <img src={ verticalArrow } />
+        </figure>
+      )
+    }
+
+    let flangerRateInteractionIcon = (
+      <figure className="small interaction-icon">
+       <img src={ turnArrow } />
+      </figure>
+    )
+
+    if (input === 'keyboard') {
+      flangerRateInteractionIcon = (
+        <figure className="small interaction-icon">
+          <img src={ verticalArrow } />
+        </figure>
+      )
+    }
+
+    let flangerDepthInteractionIcon = (
+      <figure className="small interaction-icon">
+       <img src={ verticalArrow } />
+      </figure>
+    )
+
+    if (input === 'keyboard') {
+      flangerDepthInteractionIcon = (
+        <figure className="small interaction-icon">
+          <img src={ horizontalArrow } />
+        </figure>
+      )
+    }
+
 
     return (
-      <div id="desktop">
+      <div id="desktop" data-input={ input }>
         <div id="music-player">
           <figure className="cover-bg">
             <img src={ activeTrack.image_large } />
@@ -153,7 +228,7 @@ class Desktop extends Component {
               </figure>
             </div>
 
-            <div ref={ (fiducial) => { this.bpmFiducial = fiducial; } } id="bpm" className="fiducial">
+            <div ref={ (fiducial) => { this.bpmFiducial = fiducial; } } id="bpm" className="fiducial" data-selected={ !!(currentEffect === 'bpm') }>
               <figure className="fiducial-value">
                 <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
                     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
@@ -178,7 +253,7 @@ class Desktop extends Component {
               </div>
             </div>
             
-            <div ref={ (fiducial) => { this.echoFiducial = fiducial; } } id="echo" className="fiducial" data-active="false">
+            <div ref={ (fiducial) => { this.echoFiducial = fiducial; } } id="echo" className="fiducial" data-active="false" data-selected={ !!(currentEffect === 'echo') }>
               <figure className="fiducial-value">
                 <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
                     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
@@ -193,9 +268,7 @@ class Desktop extends Component {
                 </svg>
               </figure>
 
-              <figure className="large interaction-icon">
-                <img src={ turnArrow } />
-              </figure>
+              { echoInteractionIcon }
 
               <div className="info">
                 <h3>Echo</h3>
@@ -203,7 +276,7 @@ class Desktop extends Component {
               </div>
             </div>
             
-            <div ref={ (fiducial) => { this.filterFiducial = fiducial; } } id="low-pass" className="fiducial" data-active="false">
+            <div ref={ (fiducial) => { this.filterFiducial = fiducial; } } id="low-pass" className="fiducial" data-active="false" data-selected={ !!(currentEffect === 'filter') }>
               <figure className="fiducial-value">
                 <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
                     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
@@ -218,9 +291,7 @@ class Desktop extends Component {
                 </svg>
               </figure>
 
-              <figure className="large interaction-icon">
-                <img src={ horizontalArrow } />
-              </figure>
+              { filterInteractionIcon }
 
               <div className="info">
                 <h3>Low Pass</h3>
@@ -228,7 +299,7 @@ class Desktop extends Component {
               </div>
             </div>
             
-            <div ref={ (fiducial) => { this.flangerFiducial = fiducial; } } id="flanger" className="fiducial" data-active="false">
+            <div ref={ (fiducial) => { this.flangerFiducial = fiducial; } } id="flanger" className="fiducial" data-active="false"  data-selected={ !!(currentEffect === 'flanger') }>
               <figure id="flanger-rate-fiducial" className="small-fiducial-value">
                 <svg className="bar" width="84px" height="84px" viewBox="0 0 84 84">
                   <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="201.06">
@@ -242,9 +313,7 @@ class Desktop extends Component {
                   </g>
                 </svg>
 
-                <figure className="small interaction-icon">
-                  <img src={ turnArrow } />
-                </figure>
+                { flangerRateInteractionIcon }
 
                 <h5>Rate</h5>
               </figure>
@@ -262,9 +331,7 @@ class Desktop extends Component {
                   </g>
                 </svg>
 
-                <figure className="small interaction-icon">
-                  <img src={ verticalArrow } />
-                </figure>
+                { flangerDepthInteractionIcon }
 
                 <h5>Depth</h5>
               </figure>
