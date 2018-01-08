@@ -20,7 +20,7 @@ class Desktop extends Component {
     super(props)
 
     this.state = {
-      activeTrackID : null,
+      activeTrackID : -1,
     }
 
     this.specLowList = [];
@@ -111,13 +111,14 @@ class Desktop extends Component {
   render() {
     let { activeTrackID } = this.state;
 
+
     let activeTrack = TRACKS[0];
-    if (activeTrackID !== null) {
+    if (activeTrackID > 0) {
       activeTrack = TRACKS[activeTrackID]
     }
 
-    let specList = [];
 
+    let specList = [];
     for (var i = 0; i < 20; i++) {
       specList[i] = <div key={ i } className="spec-container">
         <div className="high spec"></div>
@@ -125,8 +126,7 @@ class Desktop extends Component {
         <div className="low spec"></div>
       </div>
     }
-
-    console.log(activeTrackID);
+    
 
     return (
       <div id="desktop">
@@ -303,7 +303,7 @@ class Desktop extends Component {
           </footer>
         </div>
 
-        <div id="waiting" data-fade-out={ activeTrackID !== null }>
+        <div id="waiting" data-fade-out={ activeTrackID >= 0 }>
           <div className="content">
             <h1>TangoTable</h1>
             <p>Waiting for client to select track</p>
