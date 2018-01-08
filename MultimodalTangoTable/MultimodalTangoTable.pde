@@ -122,7 +122,7 @@ void draw()
        image(echoimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else if (tobj.getSymbolID() == 50){
        image(songimg, -object_size, -object_size, 2*object_size, 2*object_size);
-     } else if (tobj.getSymbolID() == 5){
+     } else if (tobj.getSymbolID() == 6){
        image(bpmimg, -object_size, -object_size, 2*object_size, 2*object_size);
      } else {
        rect(-object_size/2,-object_size/2,object_size,object_size);
@@ -164,7 +164,7 @@ void addTuioObject(TuioObject tobj) {
     player1.toggleEcho();
   }
   // Reset BPM
-  if (tobj.getSymbolID() == 5){
+  if (tobj.getSymbolID() == 6){
     player1.resetBpm();
   }
   
@@ -179,7 +179,7 @@ void updateTuioObject (TuioObject tobj) {
   
   // Volume control
   if (tobj.getSymbolID() == 50){
-    float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
+    float inverseY = map(tobj.getY(), 0.05, 0.75, 1, 0);
     player1.setVolume(inverseY);
   }
   
@@ -213,7 +213,7 @@ void updateTuioObject (TuioObject tobj) {
   }
   
   //BPM control
-  if (tobj.getSymbolID() == 5){
+  if (tobj.getSymbolID() == 6){
     float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
     if(bpmY < inverseY){
       player1.increaseBpm();
@@ -239,7 +239,7 @@ void removeTuioObject(TuioObject tobj) {
     player1.toggleEcho();
   }
   // Reset BPM
-  if (tobj.getSymbolID() == 5){
+  if (tobj.getSymbolID() == 6){
     player1.resetBpm();
   }
   
@@ -365,12 +365,12 @@ void keyPressed(){
       currentEffect = "echo";
     }
     //Filter
-    if (key == 'd'){
+    if (key == 'f'){
       player1.toggleFilter();
       currentEffect = "filter";
     }
     //Flanger
-    if (key == 'f'){ 
+    if (key == 'd'){ 
       player1.toggleFlanger();
       currentEffect = "flanger";
     }
