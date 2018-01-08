@@ -17,11 +17,13 @@ class Mobile extends Component {
     super(props)
 
     this.state = {
-      activeTrackID : 0,
+      activeTrackID : -1,
       activeView : null,
       fadeInView : null,
       fadeOutView : null,
     }
+
+    this.navigating = false;
 
     this.specLowList = [];
     this.specMiddleList = [];
@@ -76,16 +78,15 @@ class Mobile extends Component {
           this.setState({ activeTrackID : id });
         }
 
-        if (!playing && fadeInView === 'music-player') {
-          this.navigate('waiting');
-        }
+        if (!this.navigating) {
+          if (!playing && fadeInView === 'music-player') {
+            this.navigate('waiting');
+          }
 
-        if (playing && fadeInView === 'waiting') {
-          this.navigate('music-player');
+          if (playing && fadeInView === 'waiting') {
+            this.navigate('music-player');
+          }
         }
-
-        this.progressBar.style.width = `${ position * 100 }%`;
-        this.headerProgressBarFill.style.width = `${ position * 100 }%`;
 
         this.timestampCurrent.innerHTML = this.formatTimeString(Math.ceil(position * length));
         this.timestampEnd.innerHTML = this.formatTimeString(length);
@@ -93,11 +94,14 @@ class Mobile extends Component {
         this.currentTimesampHeading.innerHTML = this.formatTimeString(Math.ceil(position * length));
         this.endTimestampHeading.innerHTML = this.formatTimeString(length);
 
+        this.progressBar.style.width = `${ position * 100 }%`;
+        this.headerProgressBarFill.style.width = `${ position * 100 }%`;
+
         
-        for (var i = 0; i < this.specHighList.length; i++) {
-          this.specLowList[i].style.height = `${ waveform[i] * 3 }px`;
-          this.specMiddleList[i].style.height = `${ waveform[i + 20] * 10 }px`;
-          this.specHighList[i].style.height = `${ waveform[i + 40] * 15 }px`;
+        for (var i = 0; i < Math.min(this.specHighList.length, waveform.length); i++) {
+          this.specLowList[i].style.height = `${ waveform[i] * 0.5 }px`;
+          this.specMiddleList[i].style.height = `${ waveform[i + 20] * 2 }px`;
+          this.specHighList[i].style.height = `${ waveform[i + 40] * 3 }px`;
         }
 
       }.bind(this);
@@ -127,11 +131,7 @@ class Mobile extends Component {
   scrollFunction() {
     this.animRequestId = window.requestAnimationFrame(this.scrollFunction.bind(this));
 
-    console.log(this.musicPlayer.scrollTop);
-
-    this.trackCover.style.transform = `translate3d(-50%, ${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 0, -25) }px, 0)`;
-    this.trackCover.style.width = `${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 250, 100) }px`;
-    this.trackCover.style.height = `${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 250, 100) }px`;
+    this.trackCover.style.transform = `translate3d(-50%, 0, 0) scale3d(${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 1, 0.4) }, ${ this.interpolate(this.musicPlayer.scrollTop, 0, 100, 1, 0.4) }, 1)`;
 
 
     this.tiltedTriangle.style.transform = `rotate(${ this.interpolate(this.musicPlayer.scrollTop, 90, 160, 0, 16) }deg)`;
@@ -144,7 +144,7 @@ class Mobile extends Component {
     this.currentTimesampHeading.style.opacity = `${ this.interpolate(this.musicPlayer.scrollTop, 505, 535, 0, 1) }`;
     this.endTimestampHeading.style.opacity = `${ this.interpolate(this.musicPlayer.scrollTop, 505, 535, 0, 1) }`;
 
-    this.headerProgressBar.style.opacity = `${ this.interpolate(this.musicPlayer.scrollTop, 525, 535, 0, 1) }`;
+    this.headerProgressBar.style.opacity = `${ this.interpolate(this.musicPlayer.scrollTop, 520, 530, 0, 1) }`;
   }
 
   formatTimeString(time) {
@@ -210,6 +210,8 @@ class Mobile extends Component {
   }
 
   navigate(to) {
+    this.navigating = true;
+
     let { fadeInView } = this.state;
 
     //Currently on music player
@@ -228,6 +230,8 @@ class Mobile extends Component {
       this.setState({ 
         fadeOutView : null, fadeInView : to,
       })
+
+      this.navigating = false;
     }.bind(this), PAGE_TRANSITION_DURATION * 2);
   }
 
@@ -246,13 +250,18 @@ class Mobile extends Component {
   }
 
   handleChangeSongClick() {
-    this.scrollToY(this.musicPlayer.clientHeight - this.fixedHeader.clientHeight + 10, 2000, 'easeOutSine');
+    this.scrollToY(this.musicPlayer.clientHeight - this.fixedHeader.clientHeight + 15, 2000, 'easeOutSine');
   }
 
   render() {
     let { activeTrackID, activeView, fadeInView, fadeOutView } = this.state;
 
-    let activeTrack = TRACKS[activeTrackID];
+
+    let activeTrack = TRACKS[0];
+    if (activeTrackID > 0) {
+      activeTrack = TRACKS[activeTrackID];
+    }
+
 
     let specList = [];
     for (var i = 0; i < 12; i++) {
@@ -262,6 +271,7 @@ class Mobile extends Component {
         <div className="low spec"></div>
       </div>
     }
+
 
     let libaryList = TRACKS.map(function(track, i) {
       return (
@@ -277,6 +287,7 @@ class Mobile extends Component {
         </div>
       )
     }.bind(this))
+
 
     let musicPlayerList = TRACKS.map(function(track, i) {
       return (
@@ -350,7 +361,7 @@ class Mobile extends Component {
 
             <div className="content">
               <div className="player-container">
-                <span className="triangle-container"><span ref={ (triangle) => { this.tiltedTriangle = triangle; } } class="triangle"></span></span>
+                <span className="triangle-container"><span ref={ (triangle) => { this.tiltedTriangle = triangle; } } className="triangle"></span></span>
 
                 <div className="info">
                   <h1>{ activeTrack.name }</h1>

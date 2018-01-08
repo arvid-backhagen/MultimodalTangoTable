@@ -605,7 +605,6 @@
               border-radius: 0px 5px 5px 0px;
 
               transform: translate3d(0, 0, 0);
-              transition: width 150ms ease-out;
             }
 
           #mobile main #music-player .cover {
@@ -641,7 +640,6 @@
 
                   margin-bottom: -3px;
                   border-radius: 3px 3px 0 0;
-                  transition: height 150ms ease-out;
                 }
 
                 #mobile main #music-player .cover #waveform .spec.low {
@@ -665,9 +663,10 @@
             z-index: 1;
 
             position: fixed;
-            top: 100px;
+            top: 75px;
             left: 50%;
-            transform: translate3d(-50%, 0, 0);
+            transform: translate3d(-50%, 0, 0) scale3d(1, 1, 1);
+            transform-origin: top center;
             z-index: 1;
 
             width: 250px;
@@ -679,7 +678,6 @@
             box-shadow: 0 0 50px 0 rgba(246, 176, 191, 0.5);
 
             overflow: hidden;
-            transition: top 150ms ease-out, width 150ms ease-out, height 150ms ease-out;
           }
 
               #mobile main #music-player .illustration img {
@@ -789,9 +787,6 @@
 
                   background: #E77D95;
                   border-radius: 0px 5px 5px 0px;
-
-                  transform: translate3d(0, 0, 0);
-                  transition: width 150ms ease-out;
                 }
 
 
@@ -814,6 +809,8 @@
 
                   #mobile main #music-player .content .playlist-container .track-group {
                     padding: 0px 20px 0px;
+                    display: flex;
+                    flex-direction: column;
                   }
 
                       #mobile main #music-player .content .playlist-container .track-group .track {
