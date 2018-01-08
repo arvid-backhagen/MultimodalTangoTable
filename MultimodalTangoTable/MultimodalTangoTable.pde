@@ -11,7 +11,7 @@
  subject to the following conditions:
  
  The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
+ included in all copies or splayer1.player1.currentEffectubstantial portions of the Software.
  
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -59,7 +59,6 @@ float bpmY;
 
 // Arrays for keeping track of keys pressed
 boolean [] arrows = new boolean [4];
-String currentEffect = "volume";
 
 // --------------------------------------------------------------
 // Processing functions
@@ -149,7 +148,7 @@ void draw()
 void addTuioObject(TuioObject tobj) {
   // Player1 toggle
   if (tobj.getSymbolID() == 50){
-    player1.togglePlay();
+    player1.play();
   }
   // Toggle filter
   if (tobj.getSymbolID() == 2){
@@ -227,7 +226,7 @@ void updateTuioObject (TuioObject tobj) {
 // called when an object is removed from the scene
 void removeTuioObject(TuioObject tobj) {
   if (tobj.getSymbolID() == 50){
-    player1.togglePlay();
+    player1.pause();
   }
   if (tobj.getSymbolID() == 2){
     player1.toggleFilter();
@@ -322,26 +321,26 @@ void webSocketServerEvent(String msg) {
 // --------------------------------------------------------------
 void update(){
   //Volume
-  if (currentEffect == "volume" && arrows[1]) player1.increaseVolume();
-  else if (currentEffect == "volume" && arrows[2]) player1.decreaseVolume();
+  if (player1.currentEffect == "volume" && arrows[1]) player1.increaseVolume();
+  else if (player1.currentEffect == "volume" && arrows[2]) player1.decreaseVolume();
 
   //Bpm
-  if (currentEffect == "bpm" && arrows[1]) player1.increaseBpm();
-  else if (currentEffect == "bpm" && arrows[2]) player1.decreaseBpm(); 
+  if (player1.currentEffect == "bpm" && arrows[1]) player1.increaseBpm();
+  else if (player1.currentEffect == "bpm" && arrows[2]) player1.decreaseBpm(); 
   
   //Echo
-  if (currentEffect == "echo" && arrows[1]) player1.increaseEcho();
-  else if (currentEffect == "echo" && arrows[2]) player1.decreaseEcho();
+  if (player1.currentEffect == "echo" && arrows[1]) player1.increaseEcho();
+  else if (player1.currentEffect == "echo" && arrows[2]) player1.decreaseEcho();
 
   //Filter
-  if (currentEffect == "filter" && arrows[1]) player1.increaseFilter();
-  else if (currentEffect == "filter" && arrows[2]) player1.decreaseFilter();
+  if (player1.currentEffect == "filter" && arrows[1]) player1.increaseFilter();
+  else if (player1.currentEffect == "filter" && arrows[2]) player1.decreaseFilter();
   
   //Flanger
-  if (currentEffect == "flanger" && arrows[1]) player1.increaseFlangeRate();
-  else if (currentEffect == "flanger" && arrows[2]) player1.decreaseFlangeRate();
-  if (currentEffect == "flanger" && arrows[3]) player1.increaseFlangeDepth();
-  else if (currentEffect == "flanger" && arrows[0]) player1.decreaseFlangeDepth();
+  if (player1.currentEffect == "flanger" && arrows[1]) player1.increaseFlangeRate();
+  else if (player1.currentEffect == "flanger" && arrows[2]) player1.decreaseFlangeRate();
+  if (player1.currentEffect == "flanger" && arrows[3]) player1.increaseFlangeDepth();
+  else if (player1.currentEffect == "flanger" && arrows[0]) player1.decreaseFlangeDepth();
 }
 
 void keyPressed(){ 
@@ -352,27 +351,27 @@ void keyPressed(){
     }
     //Volume
     if (key == 'v'){
-      currentEffect = "volume";
+      player1.setEffect("volume");
     }
     //Bpm
     if (key == 't'){
       player1.toggleBpm();
-      currentEffect = "bpm";
+      player1.currentEffect = "bpm";
     }
     //Echo
     if (key == 'e') {
       player1.toggleEcho();
-      currentEffect = "echo";
+      player1.currentEffect = "echo";
     }
     //Filter
     if (key == 'd'){
       player1.toggleFilter();
-      currentEffect = "filter";
+      player1.currentEffect = "filter";
     }
     //Flanger
     if (key == 'f'){ 
       player1.toggleFlanger();
-      currentEffect = "flanger";
+      player1.currentEffect = "flanger";
     }
   }
   if (key == CODED){

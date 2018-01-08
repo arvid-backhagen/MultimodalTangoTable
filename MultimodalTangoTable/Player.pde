@@ -22,7 +22,12 @@ class Player {
   AudioOutput out;
   FFT         fft;
   
-  final int maxSpecSize = 1;
+  final int maxSpecSize = 20;
+  
+  int songIndex = -1;
+  boolean songActive = false;
+  boolean filePlayerLoaded = false;
+  String currentEffect = "";
   
   JSONObject song;
   JSONObject bpm;
@@ -50,6 +55,8 @@ class Player {
   final float deltaGain = 1.0;
   final float defaultGain = -6.0;
   
+  
+  boolean delayActive = true;
   Delay delayControl;
   final float delayAmp = 0.4;
   final float minDelayTime = 0.05;
@@ -57,6 +64,8 @@ class Player {
   final float deltaDelayTime = 0.01;
   final float defaultDelayTime = minDelayTime;
   
+  
+  boolean flangeActive = true;
   Flanger flangeControl;
   final float defaultFlangeRate = 1.0; // in Hz, max value 3 and min 0.1
   final float maxFlangeRate = 3.0;
@@ -67,6 +76,7 @@ class Player {
   final float minFlangeDepth = 0.0;
   final float stepFlangeDepth = 0.2;
   
+  boolean filterActive = true;
   MoogFilter  filterControl;
   final float filterResonance = 0.5;
   final MoogFilter.Type filterType = MoogFilter.Type.LP;
@@ -85,40 +95,6 @@ class Player {
   Player(MultimodalTangoTable server) {
     minim = new Minim(server);
     out = minim.getLineOut();
-    
-    fileStream = minim.loadFileStream("Daft Punk - Around The World.mp3");
-    filePlayer = new FilePlayer(fileStream);
-    
-    //Volume
-    gainControl = new Gain(defaultGain);
-    
-    //BPM
-    rateControl = new TickRate(defaultTickRate);
-    rateControl.setInterpolation(true); //stops the audio from being "scratchy" for slowers paces
-    
-    //Echo
-    delayControl = new Delay(maxDelayTime, delayAmp, true, true);
-    delayControl.setDelTime(minDelayTime);
-    
-    //Flanger
-    flangeControl = new Flanger( 1,     // delay length in milliseconds ( clamped to [0,100] )
-                        defaultFlangeRate,   // lfo rate in Hz ( clamped at low end to 0.001 )
-                        defaultFlangeDepth,     // delay depth in milliseconds ( minimum of 0 )
-                        0.5f,   // amount of feedback ( clamped to [0,1] )
-                        1f,   // amount of dry signal ( clamped to [0,1] )
-                        0.7f    // amount of wet signal ( clamped to [0,1] )
-                        );
-                      
-    //Filter
-    filterControl = new MoogFilter(defaultFilterFrequency, filterResonance, filterType);
-    
-    //Bypasses, allows us to toggle ugens.
-    delayBypassControl = new Bypass<Delay>(delayControl);
-    filterBypassControl = new Bypass<MoogFilter>(filterControl);
-    flangeBypassControl = new Bypass<Flanger>(flangeControl);
-    
-    filePlayer.patch(filterBypassControl).patch(delayBypassControl).patch(flangeBypassControl).patch(gainControl).patch(rateControl).patch(out);
-    fft = new FFT(out.bufferSize() , filePlayer.sampleRate());   
     
     
     //Default values
@@ -142,62 +118,233 @@ class Player {
     //BPM info
     bpmFiducial.setInt("x", 0);
     bpmFiducial.setInt("y", 0);
-    
     bpm.setBoolean("active", rateControlActive);
-    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
     bpm.setJSONObject("fiducial", bpmFiducial);
     
     //Filter info
     filterFiducial.setInt("x", 0);
     filterFiducial.setInt("y", 0);
-    
-    filter.setBoolean("active", !filterBypassControl.isActive());
-    filter.setFloat("frequency_value", map(defaultFilterFrequency, minFilterFrequency, maxFilterFrequency, 1, 0));
+    filter.setBoolean("active", filterActive);
     filter.setJSONObject("fiducial", filterFiducial);
     
     //Echo info
     echoFiducial.setInt("x", 0);
     echoFiducial.setInt("y", 0);
-    
-    echo.setBoolean("active", !delayBypassControl.isActive());
-    echo.setFloat("delay_value", map(defaultDelayTime, minDelayTime, maxDelayTime, 0, 1));
+    echo.setBoolean("active", delayActive);
     echo.setJSONObject("fiducial", echoFiducial);
     
     //Flange info
     flangeFiducial.setInt("x", 0);
     flangeFiducial.setInt("y", 0);
-    
-    flange.setBoolean("active", !flangeBypassControl.isActive());
-    flange.setFloat("rate_value", map(defaultFlangeRate, minFlangeRate, maxFlangeRate, 0, 1));
-    flange.setFloat("depth_value", map(defaultFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
+    flange.setBoolean("active", flangeActive);
     flange.setJSONObject("fiducial", flangeFiducial);
     
     //Song info
     songFiducial.setInt("x", 0);
     songFiducial.setInt("y", 0);
     
-    song.setInt("id", 1);
-    song.setInt("length", filePlayer.length());
-    song.setFloat("position", filePlayer.position()/filePlayer.length());
-    song.setFloat("volume", 1 - (defaultGain/minGain));
-    song.setBoolean("playing", filePlayer.isPlaying());
+    song.setInt("id", songIndex);
+    song.setBoolean("playing", songActive);
+    song.setString("current_effect", currentEffect);
     song.setJSONArray("waveform", waveform);
     song.setJSONObject("bpm", bpm);
     song.setJSONObject("echo", echo);
     song.setJSONObject("flange", flange);
     song.setJSONObject("filter", filter);
     song.setJSONObject("fiducial", songFiducial);
+  }
+  
+  void loadInitialSong(int index) {
+    //Load song
+    fileStream = minim.loadFileStream(getSongNameByIndex(index));
+    filePlayer = new FilePlayer(fileStream);
     
-    // Sets start value to false
-    toggleFilter(); 
-    toggleFlanger();
+    
+    
+    //Initialize uGens with default values
+    gainControl = new Gain(defaultGain); //Volume
+    
+    //BPM
+    rateControl = new TickRate(defaultTickRate);
+    rateControl.setInterpolation(true); //stops the audio from being "scratchy" for slowers paces
+    
+    //Echo
+    delayControl = new Delay(maxDelayTime, delayAmp, true, true);
+    delayControl.setDelTime(minDelayTime);
+    
+    //Flanger
+    flangeControl = new Flanger(1, defaultFlangeRate, defaultFlangeDepth, 0.5f, 1f, 0.7f);
+                      
+    //Filter
+    filterControl = new MoogFilter(defaultFilterFrequency, filterResonance, filterType);
+    
+    //Bypasses, allows us to toggle ugens.
+    delayBypassControl = new Bypass<Delay>(delayControl);
+    filterBypassControl = new Bypass<MoogFilter>(filterControl);
+    flangeBypassControl = new Bypass<Flanger>(flangeControl);
+    
+    
+    
+    //Apply patches and initialize fft
+    filePlayer.patch(filterBypassControl).patch(delayBypassControl).patch(flangeBypassControl).patch(gainControl).patch(rateControl).patch(out);
+    fft = new FFT(out.bufferSize() , filePlayer.sampleRate());
+    
+    
+    
+    //Set relevant json attributes
+    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1)); //BPM info
+    filter.setFloat("frequency_value", map(defaultFilterFrequency, minFilterFrequency, maxFilterFrequency, 1, 0)); //Filter info
+    echo.setFloat("delay_value", map(defaultDelayTime, minDelayTime, maxDelayTime, 0, 1)); //Echo info
+    
+    //Flange info 
+    flange.setFloat("rate_value", map(defaultFlangeRate, minFlangeRate, maxFlangeRate, 0, 1));
+    flange.setFloat("depth_value", map(defaultFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
+    
+    //Song info
+    song.setInt("id", index);
+    song.setInt("length", filePlayer.length());
+    song.setFloat("position", filePlayer.position()/filePlayer.length());
+    song.setFloat("volume", 1 - (defaultGain/minGain));
+    
+    
+    
+    //The effects are on by default, turn them off
+    toggleFilter();
     toggleEcho();
+    toggleFlanger();
+    
+    
+    
+    filePlayerLoaded = true;
+  }
+  
+  void loadNewSong(int index) {
+    //Get recent values, will be used to initialize ugens.
+    float currentGain = gainControl.gain.getLastValue();
+    float currentTickRate = rateControl.value.getLastValue();
+    float currentDelayTime = delayControl.delTime.getLastValue();
+    float currentFlangeRate = flangeControl.rate.getLastValue();
+    float currentFlangeDepth = flangeControl.depth.getLastValue();
+    float currentFilterFrequency = filterControl.frequency.getLastValue();
+    
+    
+    
+    //Pause and close current file player
+    filePlayer.pause();
+    filePlayer.close();
+    
+    
+    
+    //Load song
+    fileStream = minim.loadFileStream(getSongNameByIndex(index));
+    filePlayer = new FilePlayer(fileStream);
+    
+    
+    
+    //Initialize uGens
+    gainControl = new Gain(currentGain); //Volume
+    
+    //BPM
+    rateControl = new TickRate(currentTickRate);
+    rateControl.setInterpolation(true); //stops the audio from being "scratchy" for slowers paces
+    
+    //Echo
+    delayControl = new Delay(maxDelayTime, delayAmp, true, true);
+    delayControl.setDelTime(currentDelayTime);
+    
+    //Flanger
+    flangeControl = new Flanger(1, currentFlangeRate, currentFlangeDepth, 0.5f, 1f, 0.7f);
+                      
+    //Filter
+    filterControl = new MoogFilter(currentFilterFrequency, filterResonance, filterType);
+    
+    //Bypasses, allows us to toggle ugens.
+    delayBypassControl = new Bypass<Delay>(delayControl);
+    filterBypassControl = new Bypass<MoogFilter>(filterControl);
+    flangeBypassControl = new Bypass<Flanger>(flangeControl);
+    
+    
+    
+    //Apply patches and initialize fft
+    filePlayer.patch(filterBypassControl).patch(delayBypassControl).patch(flangeBypassControl).patch(gainControl).patch(rateControl).patch(out);
+    fft = new FFT(out.bufferSize() , filePlayer.sampleRate());
+    
+    
+    
+    //Set relevant json attributes
+    bpm.setFloat("tempo", map(currentTickRate, minTickRate, maxTickRate, 0, 1)); //BPM info
+    filter.setFloat("frequency_value", map(currentFilterFrequency, minFilterFrequency, maxFilterFrequency, 1, 0)); //Filter info
+    echo.setFloat("delay_value", map(currentDelayTime, minDelayTime, maxDelayTime, 0, 1)); //Echo info
+    
+    //Flange info 
+    flange.setFloat("rate_value", map(currentFlangeRate, minFlangeRate, maxFlangeRate, 0, 1));
+    flange.setFloat("depth_value", map(currentFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
+    
+    //Song info
+    song.setInt("id", index);
+    song.setInt("length", filePlayer.length());
+    song.setFloat("position", filePlayer.position()/filePlayer.length());
+    song.setFloat("volume", 1 - (currentGain/minGain));
+    
+    
+    
+    //Toggle shit depending on if they were previously active
+    if(songActive) {
+      play();
+    }
+    
+    if(!filterActive) {
+      toggleFilter(); 
+    }
+    
+    if(!delayActive) {
+      toggleEcho(); 
+    }
+    
+    if(!flangeActive) {
+      toggleFlanger(); 
+    }
+  }
+  
+  String getSongNameByIndex(int index) {
+    switch(index) {
+      case 0:
+        return "0.mp3";
+      
+      case 1:
+        return "1.mp3";
+      
+      case 2:
+        return "2.mp3";
+      
+      case 3:
+        return "3.mp3";
+      
+      case 4:
+        return "4.mp3";
+      
+      case 5:
+        return "5.mp3";
+        
+      default:
+        return "0.mp3";
+    }
   }
   
   
   void setSong(int id) {
-    //Need to actually implement
-    song.setInt("id", id);
+    if(filePlayerLoaded) {
+      if(songIndex != id) {
+        loadNewSong(id);
+      }
+    } else {
+      loadInitialSong(id);
+    }
+  }
+  
+  void setEffect(String effect) {
+    currentEffect = effect;
+    song.setString("current_effect", currentEffect);
   }
   
   //Toggle/Play/Pause
@@ -206,20 +353,24 @@ class Player {
   }
   
   void play() {
+    songActive = true;
+    song.setBoolean("playing", songActive);
     filePlayer.loop();
-    song.setBoolean("playing", true);
   }
   
   void pause() {
-    filePlayer.pause();
+    songActive = false;
     song.setBoolean("playing", false);
+    filePlayer.pause();
   }
   
   void togglePlay() {
-    if (filePlayer.isPlaying()) {
-      pause();
-    } else {
-      play();
+    if( filePlayerLoaded ) {
+      if (songActive) {
+        pause();
+      } else {
+        play();
+      }
     }
   }
   
@@ -273,6 +424,12 @@ class Player {
     
     rateControlActive = !rateControlActive;
     bpm.setBoolean("active", rateControlActive);
+    
+    if(rateControlActive) {
+      setEffect("bpm");
+    } else {
+      setEffect("");
+    }
   }
   
   void increaseBpm() {
@@ -293,12 +450,17 @@ class Player {
   void toggleEcho() {
     if ( delayBypassControl.isActive() ) {
       delayBypassControl.deactivate();
-      // delayControl.setDelTime(defaultDelayTime); //Comment out this line if we don't want to reset delay when toggling.
+      setEffect("echo");
+    
+      delayActive = true;
+      echo.setBoolean("active", true);
     } else {
       delayBypassControl.activate();
-    }
+      setEffect("");
     
-    echo.setBoolean("active", !delayBypassControl.isActive());
+      delayActive = false;
+      echo.setBoolean("active", false);
+    }
   }
   
   void increaseEcho() {
@@ -319,10 +481,17 @@ class Player {
   void toggleFlanger() {
     if ( flangeBypassControl.isActive() ) {
       flangeBypassControl.deactivate();
+      setEffect("flanger");
+    
+      flangeActive = true;
+      flange.setBoolean("active", true);
     } else {
       flangeBypassControl.activate();
+      setEffect("");
+    
+      flangeActive = false;
+      flange.setBoolean("active", false);
     }
-    flange.setBoolean("active", !flangeBypassControl.isActive());
   }
   
   void setFlangeDepth(float yValue){ // value of fiducial y-axis
@@ -366,11 +535,17 @@ class Player {
   void toggleFilter() {
     if ( filterBypassControl.isActive() ) {
       filterBypassControl.deactivate();
+      setEffect("filter");
+    
+      filterActive = true;
+      filter.setBoolean("active", true);
     } else {
       filterBypassControl.activate();
-    }
+      setEffect("");
     
-    filter.setBoolean("active", !filterBypassControl.isActive());
+      filterActive = false;
+      filter.setBoolean("active", false);
+    }
   }
   
   void setFilter(float xValue){
@@ -399,14 +574,15 @@ class Player {
   
   //To string
   String toJsonString() {
-    //Song info
-    fft.forward( out.mix );
+    if(filePlayerLoaded) {
+      fft.forward( out.mix );
     
-    for(int i = 0; i < min(fft.specSize(), maxSpecSize); i++) {
-      waveform.setFloat(i, fft.getBand(i));
-    }
+      for(int i = 0; i < min(fft.specSize(), maxSpecSize); i++) {
+        waveform.setFloat(i, fft.getBand(i));
+      }
      
-    song.setFloat("position", ((float) filePlayer.position()/filePlayer.length()));
+      song.setFloat("position", ((float) filePlayer.position()/filePlayer.length()));
+    }
     
     return song.toString();
   }
