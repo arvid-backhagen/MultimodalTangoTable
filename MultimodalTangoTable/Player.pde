@@ -22,7 +22,7 @@ class Player {
   AudioOutput out;
   FFT         fft;
   
-  final int maxSpecSize = 20;
+  final int maxSpecSize = 60;
   
   int songIndex = -1;
   boolean songActive = false;
@@ -201,6 +201,7 @@ class Player {
     flange.setFloat("depth_value", map(defaultFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
     
     //Song info
+    songIndex = index;
     song.setInt("id", index);
     song.setInt("length", filePlayer.length());
     song.setFloat("position", filePlayer.position()/filePlayer.length());
@@ -281,6 +282,7 @@ class Player {
     flange.setFloat("depth_value", map(currentFlangeDepth, minFlangeDepth, maxFlangeDepth, 0, 1));
     
     //Song info
+    songIndex = index;
     song.setInt("id", index);
     song.setInt("length", filePlayer.length());
     song.setFloat("position", filePlayer.position()/filePlayer.length());
@@ -294,15 +296,15 @@ class Player {
     }
     
     if(!filterActive) {
-      toggleFilter(); 
+      filterBypassControl.deactivate();
     }
     
     if(!delayActive) {
-      toggleEcho(); 
+      delayBypassControl.deactivate();
     }
     
     if(!flangeActive) {
-      toggleFlanger(); 
+      flangeBypassControl.deactivate();
     }
   }
   
@@ -354,7 +356,7 @@ class Player {
   
   void play() {
     songActive = true;
-    song.setBoolean("playing", songActive);
+    song.setBoolean("playing", true);
     filePlayer.loop();
   }
   
