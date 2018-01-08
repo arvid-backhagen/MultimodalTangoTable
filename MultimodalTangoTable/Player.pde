@@ -56,7 +56,7 @@ class Player {
   final float defaultGain = -6.0;
   
   
-  boolean delayActive = true;
+  boolean delayActive = false;
   Delay delayControl;
   final float delayAmp = 0.4;
   final float minDelayTime = 0.05;
@@ -65,7 +65,7 @@ class Player {
   final float defaultDelayTime = minDelayTime;
   
   
-  boolean flangeActive = true;
+  boolean flangeActive = false;
   Flanger flangeControl;
   final float defaultFlangeRate = 1.0; // in Hz, max value 3 and min 0.1
   final float maxFlangeRate = 3.0;
@@ -76,7 +76,7 @@ class Player {
   final float minFlangeDepth = 0.0;
   final float stepFlangeDepth = 0.2;
   
-  boolean filterActive = true;
+  boolean filterActive = false;
   MoogFilter  filterControl;
   final float filterResonance = 0.5;
   final MoogFilter.Type filterType = MoogFilter.Type.LP;
@@ -210,10 +210,9 @@ class Player {
     
     
     //The effects are on by default, turn them off
-    toggleFilter();
-    toggleEcho();
-    toggleFlanger();
-    
+    filterBypassControl.activate();
+    delayBypassControl.activate();
+    flangeBypassControl.activate();
     
     
     filePlayerLoaded = true;
@@ -296,15 +295,15 @@ class Player {
     }
     
     if(!filterActive) {
-      filterBypassControl.deactivate();
+      filterBypassControl.activate();
     }
     
     if(!delayActive) {
-      delayBypassControl.deactivate();
+      delayBypassControl.activate();
     }
     
     if(!flangeActive) {
-      flangeBypassControl.deactivate();
+      flangeBypassControl.activate();
     }
   }
   
@@ -421,16 +420,21 @@ class Player {
   }
   
   void toggleBpm() {
-    rateControl.value.setLastValue(defaultTickRate);
-    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
-    
-    rateControlActive = !rateControlActive;
-    bpm.setBoolean("active", rateControlActive);
-    
     if(rateControlActive) {
-      setEffect("bpm");
+      if(currentEffect == "bpm") {
+        rateControl.value.setLastValue(defaultTickRate);
+        bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
+        
+        setEffect("");
+        rateControlActive = false;
+        bpm.setBoolean("active", rateControlActive);
+      } else {
+        setEffect("bpm");
+      }
     } else {
-      setEffect("");
+        setEffect("bpm");
+        rateControlActive = true;
+        bpm.setBoolean("active", rateControlActive);
     }
   }
   
@@ -450,18 +454,22 @@ class Player {
   
   //Echo
   void toggleEcho() {
-    if ( delayBypassControl.isActive() ) {
+    if(delayActive) {
+      if(currentEffect == "echo") {
+        delayBypassControl.activate();
+        
+        setEffect("");
+        delayActive = false;
+        echo.setBoolean("active", false);
+      } else {
+        setEffect("echo");
+      }
+    } else {
       delayBypassControl.deactivate();
+        
       setEffect("echo");
-    
       delayActive = true;
       echo.setBoolean("active", true);
-    } else {
-      delayBypassControl.activate();
-      setEffect("");
-    
-      delayActive = false;
-      echo.setBoolean("active", false);
     }
   }
   
@@ -481,18 +489,22 @@ class Player {
   
   //Flanger
   void toggleFlanger() {
-    if ( flangeBypassControl.isActive() ) {
+    if(flangeActive) {
+      if(currentEffect == "flanger") {
+        flangeBypassControl.activate();
+        
+        setEffect("");
+        flangeActive = false;
+        flange.setBoolean("active", false);
+      } else {
+        setEffect("flanger");
+      }
+    } else {
       flangeBypassControl.deactivate();
+        
       setEffect("flanger");
-    
       flangeActive = true;
       flange.setBoolean("active", true);
-    } else {
-      flangeBypassControl.activate();
-      setEffect("");
-    
-      flangeActive = false;
-      flange.setBoolean("active", false);
     }
   }
   
@@ -535,18 +547,22 @@ class Player {
   
   //Filter
   void toggleFilter() {
-    if ( filterBypassControl.isActive() ) {
+    if(filterActive) {
+      if(currentEffect == "filter") {
+        filterBypassControl.activate();
+        
+        setEffect("");
+        filterActive = false;
+        filter.setBoolean("active", false);
+      } else {
+        setEffect("filter");
+      }
+    } else {
       filterBypassControl.deactivate();
+        
       setEffect("filter");
-    
       filterActive = true;
       filter.setBoolean("active", true);
-    } else {
-      filterBypassControl.activate();
-      setEffect("");
-    
-      filterActive = false;
-      filter.setBoolean("active", false);
     }
   }
   

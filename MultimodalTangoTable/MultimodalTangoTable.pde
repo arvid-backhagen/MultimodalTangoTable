@@ -356,22 +356,18 @@ void keyPressed(){
     //Bpm
     if (key == 't'){
       player1.toggleBpm();
-      player1.currentEffect = "bpm";
     }
     //Echo
     if (key == 'e') {
       player1.toggleEcho();
-      player1.currentEffect = "echo";
     }
     //Filter
     if (key == 'd'){
       player1.toggleFilter();
-      player1.currentEffect = "filter";
     }
     //Flanger
     if (key == 'f'){ 
       player1.toggleFlanger();
-      player1.currentEffect = "flanger";
     }
   }
   if (key == CODED){
