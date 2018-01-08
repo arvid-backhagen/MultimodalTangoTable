@@ -206,7 +206,7 @@ class Player {
   }
   
   void play() {
-    filePlayer.play();
+    filePlayer.loop();
     song.setBoolean("playing", true);
   }
   
