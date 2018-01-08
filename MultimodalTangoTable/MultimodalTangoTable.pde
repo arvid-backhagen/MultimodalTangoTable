@@ -308,8 +308,8 @@ void webSocketServerEvent(String msg) {
   int value = Integer.parseInt(data[1]);
  
   switch(payload) {
-    case "playing":
-      player1.togglePlay();
+    case "play":
+      player1.setSong(value);
     break;
       
     default:

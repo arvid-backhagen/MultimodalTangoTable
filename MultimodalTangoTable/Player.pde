@@ -182,6 +182,10 @@ class Player {
   }
   
   
+  void setSong(int id) {
+    //Need to actually implement
+    song.setInt("id", id);
+  }
   
   //Toggle/Play/Pause
   Boolean isPlaying() {
