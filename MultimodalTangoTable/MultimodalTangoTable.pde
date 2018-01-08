@@ -164,8 +164,8 @@ void addTuioObject(TuioObject tobj) {
     player1.toggleEcho();
   }
   // Reset BPM
-  if (tobj.getSymbolID() == 5){
-    player1.resetBpm();
+  if (tobj.getSymbolID() == 6){
+    player1.toggleBpm();
   }
   
   
@@ -213,7 +213,7 @@ void updateTuioObject (TuioObject tobj) {
   }
   
   //BPM control
-  if (tobj.getSymbolID() == 5){
+  if (tobj.getSymbolID() == 6){
     float inverseY = map(tobj.getY(), 0.05, 0.90, 1, 0);
     if(bpmY < inverseY){
       player1.increaseBpm();
@@ -239,8 +239,8 @@ void removeTuioObject(TuioObject tobj) {
     player1.toggleEcho();
   }
   // Reset BPM
-  if (tobj.getSymbolID() == 5){
-    player1.resetBpm();
+  if (tobj.getSymbolID() == 6){
+    player1.toggleBpm();
   }
   
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
@@ -356,7 +356,7 @@ void keyPressed(){
     }
     //Bpm
     if (key == 't'){
-      player1.resetBpm();
+      player1.toggleBpm();
       currentEffect = "bpm";
     }
     //Echo

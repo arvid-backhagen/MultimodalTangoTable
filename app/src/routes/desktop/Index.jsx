@@ -60,20 +60,21 @@ class Desktop extends Component {
       
       ws.onmessage = function(evt) {
         let { activeTrackID } = this.state;
-        let { id, length, position, playing, filter, echo, flange, tempo, volume, waveform } = JSON.parse(evt.data);
+        let { id, length, position, playing, filter, echo, flange, bpm, volume, waveform } = JSON.parse(evt.data);
 
         if (activeTrackID !== id) {
           this.setState({ activeTrackID : id });
         }
 
         this.phoneFiducial.dataset.active = !!playing;
+        this.bpmFiducial.dataset.active = !!bpm.active;
         this.echoFiducial.dataset.active = !!echo.active;
         this.filterFiducial.dataset.active = !!filter.active;
         this.flangerFiducial.dataset.active = !!flange.active;
 
         this.volumeBar.style.height = `${ volume * 100 }%`;
 
-        this.bpmBar.style.strokeDasharray = `${ tempo * LARGE_BAR_DASH_WIDTH }, 502.65`;
+        this.bpmBar.style.strokeDasharray = `${ bpm.tempo * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.filterBar.style.strokeDasharray = `${ filter.frequency_value * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.echoBar.style.strokeDasharray = `${ echo.delay_value * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.flangerRateBar.style.strokeDasharray = `${ flange.rate_value * SMALL_BAR_DASH_WIDTH }, 251.33`;
@@ -152,7 +153,7 @@ class Desktop extends Component {
               </figure>
             </div>
 
-            <div id="bpm" className="fiducial">
+            <div ref={ (fiducial) => { this.bpmFiducial = fiducial; } } id="bpm" className="fiducial">
               <figure className="fiducial-value">
                 <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
                     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
