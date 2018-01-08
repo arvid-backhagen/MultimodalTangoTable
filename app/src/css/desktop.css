@@ -24,6 +24,91 @@
 
 
 
+  #desktop #waiting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+
+    background: url('../img/desktop-bg.jpg');
+    background-size: cover;
+    background-position: center;
+
+    overflow: hidden;
+  }
+
+    #desktop #waiting:before {
+      content: "";
+
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+
+      width: 100%;
+      height: 100%;
+
+      background: linear-gradient(to -45deg, #FFF2F5, #FFDDE4);
+      opacity: 0.90;
+    }
+
+    #desktop #waiting:after {
+      content: "";
+
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+
+      width: 100%;
+      height: 100%;
+
+      background: linear-gradient(to bottom, rgba(231, 125, 149, 0), rgba(231, 125, 149, 1));
+      opacity: 0.5;
+    }
+
+    #desktop #waiting .content {
+      position: relative;
+      z-index: 2;
+
+      font-size: 2em;
+      text-align: center;
+    }
+
+      #desktop #waiting .content h1 {
+        color: #fff;
+      }
+
+      #desktop #waiting .content p {
+        margin-top: 20px;
+        color: #fff;
+      }
+
+  #desktop #waiting[data-fade-out="true"] {
+    opacity: 0;
+    z-index: 0;
+
+    transition: opacity 250ms ease-out 250ms, z-index 0ms ease-out 500ms; 
+  }
+
+
+
+  #desktop #music-player {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
   #desktop .cover-bg {
     position: absolute;
     top: 0;

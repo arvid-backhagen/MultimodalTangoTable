@@ -165,7 +165,7 @@ void addTuioObject(TuioObject tobj) {
   }
   // Reset BPM
   if (tobj.getSymbolID() == 6){
-    player1.resetBpm();
+    player1.toggleBpm();
   }
   
   
@@ -240,7 +240,7 @@ void removeTuioObject(TuioObject tobj) {
   }
   // Reset BPM
   if (tobj.getSymbolID() == 6){
-    player1.resetBpm();
+    player1.toggleBpm();
   }
   
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
@@ -308,8 +308,8 @@ void webSocketServerEvent(String msg) {
   int value = Integer.parseInt(data[1]);
  
   switch(payload) {
-    case "playing":
-      player1.togglePlay();
+    case "play":
+      player1.setSong(value);
     break;
       
     default:
@@ -356,7 +356,7 @@ void keyPressed(){
     }
     //Bpm
     if (key == 't'){
-      player1.resetBpm();
+      player1.toggleBpm();
       currentEffect = "bpm";
     }
     //Echo

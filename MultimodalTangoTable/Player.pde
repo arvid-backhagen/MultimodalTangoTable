@@ -22,20 +22,23 @@ class Player {
   AudioOutput out;
   FFT         fft;
   
-  final int maxSpecSize = 60;
+  final int maxSpecSize = 1;
   
   JSONObject song;
+  JSONObject bpm;
   JSONObject filter;
   JSONObject echo;
   JSONObject flange;
   
   JSONArray  waveform;
   JSONObject songFiducial;
+  JSONObject bpmFiducial;
   JSONObject filterFiducial;
   JSONObject echoFiducial;
   JSONObject flangeFiducial;
   
   TickRate rateControl;
+  boolean rateControlActive = false;
   final float minTickRate = 0.0;
   final float maxTickRate = 2.0;
   final float deltaTickrate = 0.025;
@@ -124,6 +127,9 @@ class Player {
     
     waveform = new JSONArray();
     
+    bpm = new JSONObject();
+    bpmFiducial = new JSONObject();
+    
     filter = new JSONObject();
     filterFiducial = new JSONObject();
     
@@ -132,6 +138,14 @@ class Player {
     
     flange = new JSONObject();
     flangeFiducial = new JSONObject();
+    
+    //BPM info
+    bpmFiducial.setInt("x", 0);
+    bpmFiducial.setInt("y", 0);
+    
+    bpm.setBoolean("active", rateControlActive);
+    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
+    bpm.setJSONObject("fiducial", bpmFiducial);
     
     //Filter info
     filterFiducial.setInt("x", 0);
@@ -164,12 +178,11 @@ class Player {
     
     song.setInt("id", 1);
     song.setInt("length", filePlayer.length());
-    song.setFloat("tempo", defaultTickRate);
-    song.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
     song.setFloat("position", filePlayer.position()/filePlayer.length());
     song.setFloat("volume", 1 - (defaultGain/minGain));
     song.setBoolean("playing", filePlayer.isPlaying());
     song.setJSONArray("waveform", waveform);
+    song.setJSONObject("bpm", bpm);
     song.setJSONObject("echo", echo);
     song.setJSONObject("flange", flange);
     song.setJSONObject("filter", filter);
@@ -182,6 +195,10 @@ class Player {
   }
   
   
+  void setSong(int id) {
+    //Need to actually implement
+    song.setInt("id", id);
+  }
   
   //Toggle/Play/Pause
   Boolean isPlaying() {
@@ -189,7 +206,7 @@ class Player {
   }
   
   void play() {
-    filePlayer.play();
+    filePlayer.loop();
     song.setBoolean("playing", true);
   }
   
@@ -247,19 +264,27 @@ class Player {
   //Bpm
   void resetBpm() {
     rateControl.value.setLastValue(defaultTickRate);
-    song.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
+    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
+  }
+  
+  void toggleBpm() {
+    rateControl.value.setLastValue(defaultTickRate);
+    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
+    
+    rateControlActive = !rateControlActive;
+    bpm.setBoolean("active", rateControlActive);
   }
   
   void increaseBpm() {
     float newTickRate = min(rateControl.value.getLastValue() + deltaTickrate, maxTickRate);
     rateControl.value.setLastValue(newTickRate);
-    song.setFloat("tempo", map(newTickRate, minTickRate, maxTickRate, 0, 1));
+    bpm.setFloat("tempo", map(newTickRate, minTickRate, maxTickRate, 0, 1));
   }
   
   void decreaseBpm() {
     float newTickRate = max(rateControl.value.getLastValue() - deltaTickrate, minTickRate);
     rateControl.value.setLastValue(newTickRate);
-    song.setFloat("tempo", map(newTickRate, minTickRate, maxTickRate, 0, 1));
+    bpm.setFloat("tempo", map(newTickRate, minTickRate, maxTickRate, 0, 1));
   }
   
   
@@ -363,13 +388,13 @@ class Player {
   void increaseFilter() {
     float newFreq = min(filterControl.frequency.getLastValue() + deltaFilterFrequency, maxFilterFrequency);
     filterControl.frequency.setLastValue(newFreq);
-    flange.setFloat("frequency_value", map(newFreq, minFilterFrequency, maxFilterFrequency, 1, 0));
+    filter.setFloat("frequency_value", map(newFreq, minFilterFrequency, maxFilterFrequency, 1, 0));
   }
   
   void decreaseFilter() {
     float newFreq = max(filterControl.frequency.getLastValue() - deltaFilterFrequency, minFilterFrequency);
     filterControl.frequency.setLastValue(newFreq);
-    flange.setFloat("frequency_value", map(newFreq, minFilterFrequency, maxFilterFrequency, 1, 0));
+    filter.setFloat("frequency_value", map(newFreq, minFilterFrequency, maxFilterFrequency, 1, 0));
   }
   
   //To string

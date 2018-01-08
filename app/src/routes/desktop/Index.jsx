@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 
-import daftPunkLarge from '../../img/large/daft-punk.jpg';
-
-import daftPunkSmall from '../../img/small/daft-punk.jpg';
+import { WS_SERVER } from '../../data/constants';
+import { TRACKS } from '../../data/tracks';
 
 import horizontalArrow from '../../img/horizontal-arrow.svg';
 import verticalArrow from '../../img/vertical-arrow.svg';
@@ -20,7 +19,9 @@ class Desktop extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {}
+    this.state = {
+      activeTrackID : null,
+    }
 
     this.specLowList = [];
     this.specMiddleList = [];
@@ -40,12 +41,9 @@ class Desktop extends Component {
 
 
 
-    var wsAdress = "ws://localhost:1234";
-
     var ws = null;
-    
     if('WebSocket' in window) {
-      ws = new WebSocket(wsAdress);
+      ws = new WebSocket(WS_SERVER);
         
       ws.onopen = function() {
         console.log("connection established");
@@ -61,16 +59,22 @@ class Desktop extends Component {
       };
       
       ws.onmessage = function(evt) {
-        let { id, length, position, playing, filter, echo, flange, tempo, volume, waveform } = JSON.parse(evt.data);
+        let { activeTrackID } = this.state;
+        let { id, length, position, playing, filter, echo, flange, bpm, volume, waveform } = JSON.parse(evt.data);
+
+        if (activeTrackID !== id) {
+          this.setState({ activeTrackID : id });
+        }
 
         this.phoneFiducial.dataset.active = !!playing;
+        this.bpmFiducial.dataset.active = !!bpm.active;
         this.echoFiducial.dataset.active = !!echo.active;
         this.filterFiducial.dataset.active = !!filter.active;
         this.flangerFiducial.dataset.active = !!flange.active;
 
         this.volumeBar.style.height = `${ volume * 100 }%`;
 
-        this.bpmBar.style.strokeDasharray = `${ tempo * LARGE_BAR_DASH_WIDTH }, 502.65`;
+        this.bpmBar.style.strokeDasharray = `${ bpm.tempo * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.filterBar.style.strokeDasharray = `${ filter.frequency_value * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.echoBar.style.strokeDasharray = `${ echo.delay_value * LARGE_BAR_DASH_WIDTH }, 502.65`;
         this.flangerRateBar.style.strokeDasharray = `${ flange.rate_value * SMALL_BAR_DASH_WIDTH }, 251.33`;
@@ -105,6 +109,13 @@ class Desktop extends Component {
   }
 
   render() {
+    let { activeTrackID } = this.state;
+
+    let activeTrack = TRACKS[0];
+    if (activeTrackID !== null) {
+      activeTrack = TRACKS[activeTrackID]
+    }
+
     let specList = [];
 
     for (var i = 0; i < 20; i++) {
@@ -115,178 +126,189 @@ class Desktop extends Component {
       </div>
     }
 
+    console.log(activeTrackID);
+
     return (
       <div id="desktop">
-        <figure className="cover-bg">
-          <img src={ daftPunkLarge } />
-        </figure>
+        <div id="music-player">
+          <figure className="cover-bg">
+            <img src={ activeTrack.image_large } />
+          </figure>
 
-        <main className="flex-content">
-          <div ref={ (waveform) => { this.waveform = waveform; } } id="waveform">{ specList }</div>
+          <main className="flex-content">
+            <div ref={ (waveform) => { this.waveform = waveform; } } id="waveform">{ specList }</div>
 
-          <div ref={ (fiducial) => { this.phoneFiducial = fiducial; } } id="mobile" className="fiducial" data-active="false">
-            <figure className="bg">
-                <img src={ daftPunkSmall } />
-            </figure>
-
-            <figure className="volume">
-              <figure ref={ (bar) => { this.volumeBar = bar; } } className="fill">
+            <div ref={ (fiducial) => { this.phoneFiducial = fiducial; } } id="mobile" className="fiducial" data-active="false">
+              <figure className="bg">
+                  <img src={ activeTrack.image_small } />
               </figure>
 
-              <figure className="icon">
-                <img src={ speakerIcon } />
+              <figure className="volume">
+                <figure ref={ (bar) => { this.volumeBar = bar; } } className="fill">
+                </figure>
+
+                <figure className="icon">
+                  <img src={ speakerIcon } />
+                </figure>
               </figure>
-            </figure>
-          </div>
-
-          <div id="bpm" className="fiducial">
-            <figure className="fiducial-value">
-              <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
-                  <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
-                      <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
-                  </g>
-              </svg>
-
-              <svg className="fill" width="166px" height="166px" viewBox="0 0 166 166">
-                  <g ref={ (bar) => { this.bpmBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 502.65">
-                      <circle id="Oval-2" stroke="#E77D95" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
-                  </g>
-              </svg>
-            </figure>
-
-            <figure className="large interaction-icon">
-              <img src={ verticalArrow } />
-            </figure>
-
-            <div className="info">
-              <h3>BPM</h3>
-              <p>Controls the tempo of the song</p>
             </div>
-          </div>
-          
-          <div ref={ (fiducial) => { this.echoFiducial = fiducial; } } id="echo" className="fiducial" data-active="false">
-            <figure className="fiducial-value">
-              <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
-                  <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
-                      <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
-                  </g>
-              </svg>
 
-              <svg className="fill" width="166px" height="166px" viewBox="0 0 166 166">
-                  <g ref={ (bar) => { this.echoBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 502.65">
-                      <circle id="Oval-2" stroke="#E77D95" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
-                  </g>
-              </svg>
-            </figure>
+            <div ref={ (fiducial) => { this.bpmFiducial = fiducial; } } id="bpm" className="fiducial">
+              <figure className="fiducial-value">
+                <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
+                    <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
+                        <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
+                    </g>
+                </svg>
 
-            <figure className="large interaction-icon">
-              <img src={ turnArrow } />
-            </figure>
-
-            <div className="info">
-              <h3>Echo</h3>
-              <p>Controls the tempo of the song</p>
-            </div>
-          </div>
-          
-          <div ref={ (fiducial) => { this.filterFiducial = fiducial; } } id="low-pass" className="fiducial" data-active="false">
-            <figure className="fiducial-value">
-              <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
-                  <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
-                      <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
-                  </g>
-              </svg>
-
-              <svg className="fill" width="166px" height="166px" viewBox="0 0 166 166">
-                  <g ref={ (bar) => { this.filterBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 502.65">
-                      <circle id="Oval-2" stroke="#E77D95" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
-                  </g>
-              </svg>
-            </figure>
-
-            <figure className="large interaction-icon">
-              <img src={ horizontalArrow } />
-            </figure>
-
-            <div className="info">
-              <h3>Low Pass</h3>
-              <p>Controls the tempo of the song</p>
-            </div>
-          </div>
-          
-          <div ref={ (fiducial) => { this.flangerFiducial = fiducial; } } id="flanger" className="fiducial" data-active="false">
-            <figure id="flanger-rate-fiducial" className="small-fiducial-value">
-              <svg className="bar" width="84px" height="84px" viewBox="0 0 84px 84px">
-                <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="201.06">
-                    <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
-                </g>
-              </svg>
-
-              <svg className="fill" width="84px" height="84px" viewBox="0 0 84px 84px">
-                <g ref={ (bar) => { this.flangerRateBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 251.33">
-                    <circle id="Oval-2" stroke="#E77D95" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
-                </g>
-              </svg>
-
-              <figure className="small interaction-icon">
-                <img src={ turnArrow } />
+                <svg className="fill" width="166px" height="166px" viewBox="0 0 166 166">
+                    <g ref={ (bar) => { this.bpmBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 502.65">
+                        <circle id="Oval-2" stroke="#E77D95" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
+                    </g>
+                </svg>
               </figure>
 
-              <h5>Rate</h5>
-            </figure>
-
-            <figure id="flanger-depth-fiducial" className="small-fiducial-value">
-              <svg className="bar" width="84px" height="84px" viewBox="0 0 84px 84px">
-                <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="201.06">
-                    <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
-                </g>
-              </svg>
-
-              <svg className="fill" width="84px" height="84px" viewBox="0 0 84px 84px">
-                <g ref={ (bar) => { this.flangerDepthBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 251.33">
-                    <circle id="Oval-2" stroke="#E77D95" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
-                </g>
-              </svg>
-
-              <figure className="small interaction-icon">
+              <figure className="large interaction-icon">
                 <img src={ verticalArrow } />
               </figure>
 
-              <h5>Depth</h5>
-            </figure>
-
-            <div className="info">
-              <h3>Flanger</h3>
-              <p>Controls the tempo of the song</p>
+              <div className="info">
+                <h3>BPM</h3>
+                <p>Controls the tempo of the song</p>
+              </div>
             </div>
-          </div>
-        </main>
+            
+            <div ref={ (fiducial) => { this.echoFiducial = fiducial; } } id="echo" className="fiducial" data-active="false">
+              <figure className="fiducial-value">
+                <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
+                    <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
+                        <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
+                    </g>
+                </svg>
 
-        <footer>
-          <figure className="bg">
-            <img src={desktopFooter} />
-          </figure>
-
-          <div className="flex-container">
-            <div className="flex-content">
-              <figure className="track-cover">
-                <img src={ daftPunkSmall } />
+                <svg className="fill" width="166px" height="166px" viewBox="0 0 166 166">
+                    <g ref={ (bar) => { this.echoBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 502.65">
+                        <circle id="Oval-2" stroke="#E77D95" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
+                    </g>
+                </svg>
               </figure>
 
-              <div className="track-info">
-                <h1>Get Lucky</h1>
-                <h4>Daft punk</h4>
+              <figure className="large interaction-icon">
+                <img src={ turnArrow } />
+              </figure>
+
+              <div className="info">
+                <h3>Echo</h3>
+                <p>Controls the tempo of the song</p>
+              </div>
+            </div>
+            
+            <div ref={ (fiducial) => { this.filterFiducial = fiducial; } } id="low-pass" className="fiducial" data-active="false">
+              <figure className="fiducial-value">
+                <svg className="bar" width="166px" height="166px" viewBox="0 0 166 166">
+                    <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="402.12">
+                        <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
+                    </g>
+                </svg>
+
+                <svg className="fill" width="166px" height="166px" viewBox="0 0 166 166">
+                    <g ref={ (bar) => { this.filterBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 502.65">
+                        <circle id="Oval-2" stroke="#E77D95" strokeWidth="6" transform="translate(83.000000, 83.000000) translate(-83.000000, -83.000000) " cx="83" cy="83" r="80"></circle>
+                    </g>
+                </svg>
+              </figure>
+
+              <figure className="large interaction-icon">
+                <img src={ horizontalArrow } />
+              </figure>
+
+              <div className="info">
+                <h3>Low Pass</h3>
+                <p>Controls the tempo of the song</p>
+              </div>
+            </div>
+            
+            <div ref={ (fiducial) => { this.flangerFiducial = fiducial; } } id="flanger" className="fiducial" data-active="false">
+              <figure id="flanger-rate-fiducial" className="small-fiducial-value">
+                <svg className="bar" width="84px" height="84px" viewBox="0 0 84 84">
+                  <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="201.06">
+                      <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
+                  </g>
+                </svg>
+
+                <svg className="fill" width="84px" height="84px" viewBox="0 0 84 84">
+                  <g ref={ (bar) => { this.flangerRateBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 251.33">
+                      <circle id="Oval-2" stroke="#E77D95" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
+                  </g>
+                </svg>
+
+                <figure className="small interaction-icon">
+                  <img src={ turnArrow } />
+                </figure>
+
+                <h5>Rate</h5>
+              </figure>
+
+              <figure id="flanger-depth-fiducial" className="small-fiducial-value">
+                <svg className="bar" width="84px" height="84px" viewBox="0 0 84 84">
+                  <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="201.06">
+                      <circle id="Oval-2" stroke="#F6B0BF" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
+                  </g>
+                </svg>
+
+                <svg className="fill" width="84px" height="84px" viewBox="0 0 84 84">
+                  <g ref={ (bar) => { this.flangerDepthBar = bar; } } className="stroke" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="0.0, 251.33">
+                      <circle id="Oval-2" stroke="#E77D95" strokeWidth="4" transform="translate(42.000000, 42.000000) translate(-42.000000, -42.000000) " cx="42" cy="42" r="40"></circle>
+                  </g>
+                </svg>
+
+                <figure className="small interaction-icon">
+                  <img src={ verticalArrow } />
+                </figure>
+
+                <h5>Depth</h5>
+              </figure>
+
+              <div className="info">
+                <h3>Flanger</h3>
+                <p>Controls the tempo of the song</p>
+              </div>
+            </div>
+          </main>
+
+          <footer>
+            <figure className="bg">
+              <img src={desktopFooter} />
+            </figure>
+
+            <div className="flex-container">
+              <div className="flex-content">
+                <figure className="track-cover">
+                  <img src={ activeTrack.image_small } />
+                </figure>
+
+                <div className="track-info">
+                  <h1>{ activeTrack.name }</h1>
+                  <h4>{ activeTrack.artist }</h4>
+                </div>
+
+                <h4 ref={ (timestamp) => { this.timestampCurrent = timestamp; } } className="time-stamp current"></h4>
+                <h4 ref={ (timestamp) => { this.timestampEnd = timestamp; } } className="time-stamp end"></h4>
               </div>
 
-              <h4 ref={ (timestamp) => { this.timestampCurrent = timestamp; } } className="time-stamp current"></h4>
-              <h4 ref={ (timestamp) => { this.timestampEnd = timestamp; } } className="time-stamp end"></h4>
+              <div className="progress-bar">
+                <div ref={ (bar) => { this.progressBar = bar; } } className="progress-fill"></div>
+              </div>
             </div>
+          </footer>
+        </div>
 
-            <div className="progress-bar">
-              <div ref={ (bar) => { this.progressBar = bar; } } className="progress-fill"></div>
-            </div>
+        <div id="waiting" data-fade-out={ activeTrackID !== null }>
+          <div className="content">
+            <h1>TangoTable</h1>
+            <p>Waiting for client to select track</p>
           </div>
-        </footer>
+        </div>
       </div>
     );
   }
