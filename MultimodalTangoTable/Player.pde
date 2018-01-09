@@ -422,20 +422,28 @@ class Player {
   void toggleBpm() {
     if(rateControlActive) {
       if(currentEffect == "bpm") {
-        rateControl.value.setLastValue(defaultTickRate);
-        bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
-        
-        setEffect("");
-        rateControlActive = false;
-        bpm.setBoolean("active", rateControlActive);
+        deactivateBpm();
       } else {
         setEffect("bpm");
       }
     } else {
-        setEffect("bpm");
-        rateControlActive = true;
-        bpm.setBoolean("active", rateControlActive);
+      activateBpm();
     }
+  }
+  
+  void activateBpm() {
+    setEffect("bpm");
+    rateControlActive = true;
+    bpm.setBoolean("active", rateControlActive);
+  }
+  
+  void deactivateBpm() {
+    rateControl.value.setLastValue(defaultTickRate);
+    bpm.setFloat("tempo", map(defaultTickRate, minTickRate, maxTickRate, 0, 1));
+    
+    setEffect("");
+    rateControlActive = false;
+    bpm.setBoolean("active", rateControlActive);
   }
   
   void increaseBpm() {
@@ -456,21 +464,29 @@ class Player {
   void toggleEcho() {
     if(delayActive) {
       if(currentEffect == "echo") {
-        delayBypassControl.activate();
-        
-        setEffect("");
-        delayActive = false;
-        echo.setBoolean("active", false);
+        deactivateEcho();
       } else {
         setEffect("echo");
       }
     } else {
-      delayBypassControl.deactivate();
-        
-      setEffect("echo");
-      delayActive = true;
-      echo.setBoolean("active", true);
+      activateEcho();
     }
+  }
+  
+  void activateEcho() {
+    delayBypassControl.deactivate();
+      
+    setEffect("echo");
+    delayActive = true;
+    echo.setBoolean("active", true);
+  }
+  
+  void deactivateEcho() {
+    delayBypassControl.activate();
+    
+    setEffect("");
+    delayActive = false;
+    echo.setBoolean("active", false);
   }
   
   void increaseEcho() {
@@ -491,21 +507,29 @@ class Player {
   void toggleFlanger() {
     if(flangeActive) {
       if(currentEffect == "flanger") {
-        flangeBypassControl.activate();
-        
-        setEffect("");
-        flangeActive = false;
-        flange.setBoolean("active", false);
+        deactivateFlanger();
       } else {
         setEffect("flanger");
       }
     } else {
-      flangeBypassControl.deactivate();
-        
-      setEffect("flanger");
-      flangeActive = true;
-      flange.setBoolean("active", true);
+      activateFlanger();
     }
+  }
+  
+  void activateFlanger() {
+    flangeBypassControl.deactivate();
+      
+    setEffect("flanger");
+    flangeActive = true;
+    flange.setBoolean("active", true);
+  }
+  
+  void deactivateFlanger() {
+    flangeBypassControl.activate();
+    
+    setEffect("");
+    flangeActive = false;
+    flange.setBoolean("active", false);
   }
   
   void setFlangeDepth(float yValue){ // value of fiducial y-axis
@@ -549,21 +573,29 @@ class Player {
   void toggleFilter() {
     if(filterActive) {
       if(currentEffect == "filter") {
-        filterBypassControl.activate();
-        
-        setEffect("");
-        filterActive = false;
-        filter.setBoolean("active", false);
+        deactivateFilter();
       } else {
         setEffect("filter");
       }
     } else {
-      filterBypassControl.deactivate();
-        
-      setEffect("filter");
-      filterActive = true;
-      filter.setBoolean("active", true);
+      activateFilter();
     }
+  }
+  
+  void activateFilter() {
+    filterBypassControl.deactivate();
+      
+    setEffect("filter");
+    filterActive = true;
+    filter.setBoolean("active", true);
+  }
+  
+  void deactivateFilter() {
+    filterBypassControl.activate();
+    
+    setEffect("");
+    filterActive = false;
+    filter.setBoolean("active", false);
   }
   
   void setFilter(float xValue){

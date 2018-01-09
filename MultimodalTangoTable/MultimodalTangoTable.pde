@@ -160,22 +160,22 @@ void addTuioObject(TuioObject tobj) {
   
   // Toggle filter
   if (tobj.getSymbolID() == filterFiducial){
-    player1.toggleFilter();
+    player1.activateFilter();
   }
   
   // Toggle flanger
   if (tobj.getSymbolID() == flangerFiducial){
-    player1.toggleFlanger();
+    player1.activateFlanger();
   }
   
   // Toggle echo
   if (tobj.getSymbolID() == echoFiducial){
-    player1.toggleEcho();
+    player1.activateEcho();
   }
   
   // Reset BPM
   if (tobj.getSymbolID() == bpmFiducial){
-    player1.toggleBpm();
+    player1.activateBpm();
   }
   
   
@@ -251,20 +251,20 @@ void removeTuioObject(TuioObject tobj) {
   }
   
   if (tobj.getSymbolID() == filterFiducial){
-    player1.toggleFilter();
+    player1.deactivateFilter();
   }
   
   if (tobj.getSymbolID() == flangerFiducial){
-    player1.toggleFlanger();
+    player1.deactivateFlanger();
   }
   
   if (tobj.getSymbolID() == echoFiducial){
-    player1.toggleEcho();
+    player1.deactivateEcho();
   }
   
   // Reset BPM
   if (tobj.getSymbolID() == bpmFiducial){
-    player1.toggleBpm();
+    player1.deactivateBpm();
   }
   
   if (verbose) println("del obj "+tobj.getSymbolID()+" ("+tobj.getSessionID()+")");
