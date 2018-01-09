@@ -229,7 +229,7 @@ class Desktop extends Component {
           <main className="flex-content">
             <div ref={ (waveform) => { this.waveform = waveform; } } id="waveform">{ specList }</div>
 
-            <div ref={ (fiducial) => { this.phoneFiducial = fiducial; } } id="mobile" className="fiducial" data-active="false">
+            <div ref={ (fiducial) => { this.phoneFiducial = fiducial; } } id="mobile" className="fiducial" data-active="false" data-selected={ !!(currentEffect === 'volume') }>
               <figure className="bg">
                   <img src={ activeTrack.image_small } />
               </figure>
@@ -288,7 +288,7 @@ class Desktop extends Component {
 
               <div className="info">
                 <h3>Echo</h3>
-                <p>Controls the tempo of the song</p>
+                <p>Controls the delay of the echo effect</p>
               </div>
             </div>
             
@@ -311,7 +311,7 @@ class Desktop extends Component {
 
               <div className="info">
                 <h3>Low Pass</h3>
-                <p>Controls the tempo of the song</p>
+                <p>Control the frequency cut off point</p>
               </div>
             </div>
             
@@ -354,7 +354,7 @@ class Desktop extends Component {
 
               <div className="info">
                 <h3>Flanger</h3>
-                <p>Controls the tempo of the song</p>
+                <p>Controls rate and depth of flange effect</p>
               </div>
             </div>
           </main>
